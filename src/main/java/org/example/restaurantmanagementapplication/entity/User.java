@@ -15,35 +15,40 @@ import java.util.Collection;
 @Setter
 @ToString
 public class User {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	private int id;
 
-	@NotNull(message = "E-mail cannot be empty")
-	@Column(name = "email")
-	private String email;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private int id;
 
-	@NotNull(message = "Password cannot be empty")
-	@Column(name = "password")
-	private String password;
+  @NotNull(message = "E-mail cannot be empty")
+  @Column(name = "email")
+  private String email;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-	@JoinColumn(name = "role_id")
-	private Collection<Role> roles;
+  @NotNull(message = "Password cannot be empty")
+  @Column(name = "password")
+  private String password;
 
-	public User() {
-		this.roles = new ArrayList<>();
-	}
+  @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+  @JoinTable(
+      name = "user_roles",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id")
+  )
+  private Collection<Role> roles;
 
-	public void addRole(Role role) {
-		if (this.roles == null) {
-			this.roles = new ArrayList<>();
-		}
-		roles.add(role);
-	}
+  public User() {
+    this.roles = new ArrayList<>();
+  }
 
-	public void removeRole(Role role) {
-		roles.remove(role);
-	}
+  public void addRole(Role role) {
+    if (this.roles == null) {
+      this.roles = new ArrayList<>();
+    }
+    roles.add(role);
+  }
+
+  public void removeRole(Role role) {
+    roles.remove(role);
+  }
 }
