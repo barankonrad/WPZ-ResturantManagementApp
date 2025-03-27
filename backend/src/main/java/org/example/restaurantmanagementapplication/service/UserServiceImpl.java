@@ -1,26 +1,22 @@
 package org.example.restaurantmanagementapplication.service;
 
-import org.example.restaurantmanagementapplication.repository.RoleRepository;
-import org.example.restaurantmanagementapplication.repository.UserRepository;
-import org.example.restaurantmanagementapplication.entity.Role;
-import org.example.restaurantmanagementapplication.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.example.restaurantmanagementapplication.entity.Role;
+import org.example.restaurantmanagementapplication.entity.User;
+import org.example.restaurantmanagementapplication.repository.RoleRepository;
+import org.example.restaurantmanagementapplication.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+	private final PasswordEncoder passwordEncoder;
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
-
-	@Autowired
-	public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
-		this.userRepository = userRepository;
-		this.roleRepository = roleRepository;
-	}
 
 	@Override
 	public List<User> findAll() {
@@ -33,8 +29,14 @@ public class UserServiceImpl implements UserService {
 		return result.orElse(null);
 	}
 
+	public User findByUsername(String username) {
+		Optional<User> result = userRepository.findByEmail(username);
+		return result.orElse(null);
+	}
+
 	@Override
 	public User save(User user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return userRepository.save(user);
 	}
 
