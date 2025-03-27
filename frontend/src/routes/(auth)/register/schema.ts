@@ -7,8 +7,8 @@ export const roles = {
 } as const;
 
 export const registerSchema = v.strictObject({
-  email: v.pipe(v.string(), v.email('Invalid email')),
-  password: v.pipe(v.string(), v.nonEmpty('Empty password')),
+  email: v.pipe(v.string(), v.email("Invalid email")),
+  password: v.pipe(v.string(), v.nonEmpty("Empty password")),
   role: v.pipe(v.string(), v.enum(roles, "Invalid role"))
 });
 
