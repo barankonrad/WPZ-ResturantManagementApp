@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "@lucide/svelte": "^0.484.0",
-    "mode-watcher": "^0.5.1"
+    "mode-watcher": "^0.5.1",
+    "svelte-headless-table": "^0.18.3"
   }
 }
