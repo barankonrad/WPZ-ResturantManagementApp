@@ -2,17 +2,16 @@
   import "../app.css";
   import { ModeWatcher } from "mode-watcher";
   import Navbar from "$lib/components/navbar.svelte";
+  import type { LayoutProps } from "./$types";
 
-  let { children } = $props();
-  let user = false;
+  let { data, children }: LayoutProps = $props();
 </script>
 
 <ModeWatcher />
 
 <div class="flex h-full min-h-screen flex-col">
   <header class="bg-gray-100 shadow-md dark:bg-gray-900">
-    <Navbar {user}></Navbar>
-  </header>
+    <Navbar user={data.user}></Navbar>
 
   {@render children()}
 
