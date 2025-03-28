@@ -1,11 +1,18 @@
+import { me } from "$lib/api/auth";
+import { roles, type User } from "$lib/types/user";
 import type { Handle } from "@sveltejs/kit";
 
 export const handle: Handle = async ({ event, resolve }) => {
-  event.locals.user = {
-    id: "3007388d-e0cb-468f-b5da-d086d3e3ac84",
-    email: "admin@example.org",
-    role: "admin"
-  };
+  const response = await me();
+  event.locals.user = response.authenticated ? response.user! : null
+
+  event.locals.user = userMock();
 
   return await resolve(event);
 };
+
+const userMock = (): User => ({
+  id: crypto.randomUUID(),
+  email: "test@restaurant.com",
+  roles: [roles.admin]
+})
