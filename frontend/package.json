@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@lucide/svelte": "^0.484.0",
-    "mode-watcher": "^0.5.1",
-    "svelte-headless-table": "^0.18.3"
+    "@tanstack/table-core": "^8.21.2",
+    "mode-watcher": "^0.5.1"
   }
 }
