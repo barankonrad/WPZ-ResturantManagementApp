@@ -8,7 +8,8 @@
 </script>
 
 <ModeWatcher />
-<div class="flex min-h-screen flex-col">
+
+<div class="flex h-full min-h-screen flex-col">
   <header class="bg-gray-100 shadow-md dark:bg-gray-900">
     <Navbar user={data.user}></Navbar>
   </header>
