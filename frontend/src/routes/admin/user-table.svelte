@@ -1,9 +1,15 @@
 <script lang="ts" generics="TData, TValue">
-  import { type ColumnDef, type ColumnFiltersState, type PaginationState, type RowSelectionState, type VisibilityState, getCoreRowModel, getFilteredRowModel, getPaginationRowModel } from "@tanstack/table-core";
   import {
-    createSvelteTable,
-    FlexRender,
-  } from "$lib/components/ui/data-table";
+    type ColumnDef,
+    type ColumnFiltersState,
+    type PaginationState,
+    type RowSelectionState,
+    type VisibilityState,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel
+  } from "@tanstack/table-core";
+  import { createSvelteTable, FlexRender } from "$lib/components/ui/data-table";
   import * as Table from "$lib/components/ui/table";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
   import { Button } from "$lib/components/ui/button";
@@ -70,19 +76,19 @@
       },
       get rowSelection() {
         return rowSelection;
-      },
-    },
+      }
+    }
   });
 
   const addUser = () => {
     // TODO: Implement the logic to add a new user
     console.log("Add new user");
     alert("Add new user functionality not implemented yet.");
-  }
+  };
 </script>
 
 <div>
-  <div class="flex items-center justify-between mb-4">
+  <div class="mb-4 flex items-center justify-between">
     <Input
       placeholder="Filter emails..."
       value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
@@ -102,14 +108,10 @@
           {/snippet}
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end">
-          {#each table
-            .getAllColumns()
-            .filter((col) => col.getCanHide()) as column (column.id)}
+          {#each table.getAllColumns().filter((col) => col.getCanHide()) as column (column.id)}
             <DropdownMenu.CheckboxItem
               class="capitalize"
-              bind:checked={
-                () => column.getIsVisible(), (v) => column.toggleVisibility(!!v)
-              }
+              bind:checked={() => column.getIsVisible(), (v) => column.toggleVisibility(!!v)}
             >
               {column.id}
             </DropdownMenu.CheckboxItem>
@@ -145,26 +147,21 @@
           <Table.Row data-state={row.getIsSelected() && "selected"}>
             {#each row.getVisibleCells() as cell (cell.id)}
               <Table.Cell>
-                <FlexRender
-                  content={cell.column.columnDef.cell}
-                  context={cell.getContext()}
-                />
+                <FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
               </Table.Cell>
             {/each}
           </Table.Row>
         {:else}
           <Table.Row>
-            <Table.Cell colspan={columns.length} class="h-24 text-center">
-              No results.
-            </Table.Cell>
+            <Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
           </Table.Row>
         {/each}
       </Table.Body>
     </Table.Root>
   </div>
 
-  <div class="flex flex-row justify-between items-center">
-    <div class="text-muted-foreground flex-1 text-sm">
+  <div class="flex flex-row items-center justify-between">
+    <div class="flex-1 text-sm text-muted-foreground">
       {table.getFilteredSelectedRowModel().rows.length} of{" "}
       {table.getFilteredRowModel().rows.length} row(s) selected.
     </div>

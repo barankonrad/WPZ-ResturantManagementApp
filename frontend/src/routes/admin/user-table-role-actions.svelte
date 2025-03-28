@@ -5,9 +5,18 @@
   import * as Popover from "$lib/components/ui/popover/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import { cn } from "$lib/utils.js";
-  import { Check, ChefHat, ChevronsUpDown, CircleHelp, ShieldPlus, ShieldUser, User, Utensils } from "@lucide/svelte";
-  
-  let { id, role }: { id: string, role: UserRole } = $props();
+  import {
+    Check,
+    ChefHat,
+    ChevronsUpDown,
+    CircleHelp,
+    ShieldPlus,
+    ShieldUser,
+    User,
+    Utensils
+  } from "@lucide/svelte";
+
+  let { id, role }: { id: string; role: UserRole } = $props();
 
   const roles = [
     { value: "user", label: "User" },
@@ -16,21 +25,19 @@
     { value: "manager", label: "Manager" },
     { value: "admin", label: "Admin" }
   ];
-  
+
   let open = $state(false);
   let value: UserRole = $state(role);
   let triggerRef = $state<HTMLButtonElement>(null!);
 
-  const selectedValue = $derived(
-    roles.find((f) => f.value === value)?.label
-  );
+  const selectedValue = $derived(roles.find((f) => f.value === value)?.label);
 
   const closeAndFocusTrigger = () => {
     open = false;
     tick().then(() => {
       triggerRef.focus();
     });
-  }
+  };
 
   const changeRole = (newRole: UserRole) => {
     // TODO: Implement the logic to change the user role
@@ -64,8 +71,8 @@
             {/if}
             <span class="text-sm font-medium">{selectedValue}</span>
           {:else}
-          <CircleHelp class="h-4 w-4 text-muted-foreground" />
-          <span class="text-sm text-muted-foreground">Select a role...</span>
+            <CircleHelp class="h-4 w-4 text-muted-foreground" />
+            <span class="text-sm text-muted-foreground">Select a role...</span>
           {/if}
         </div>
         <ChevronsUpDown class="opacity-50" />
@@ -86,9 +93,7 @@
                 closeAndFocusTrigger();
               }}
             >
-              <Check
-                class={cn(value !== rl.value && "text-transparent")}
-              />
+              <Check class={cn(value !== rl.value && "text-transparent")} />
               {rl.label}
             </Command.Item>
           {/each}
