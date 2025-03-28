@@ -1,4 +1,4 @@
-package org.example.restaurantmanagementapplication.model;
+package org.example.restaurantmanagementapplication.model.in;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

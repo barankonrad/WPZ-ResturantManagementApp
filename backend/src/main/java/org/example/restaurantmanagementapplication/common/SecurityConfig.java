@@ -50,7 +50,7 @@ public class SecurityConfig {
     http.authenticationProvider(authProvider())
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/login", "/").permitAll()
+            .requestMatchers("/", "/login", "/me").permitAll()
             .requestMatchers("/admin").hasRole("ADMIN")
             .anyRequest().authenticated()
         ).sessionManagement(session -> session
