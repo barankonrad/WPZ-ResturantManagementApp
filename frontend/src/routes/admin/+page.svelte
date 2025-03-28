@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { page } from "$app/state";
   import * as Card from "$lib/components/ui/card";
   import * as Tabs from "$lib/components/ui/tabs";
-  import { UserTable } from "$lib/components/user-table";
+  import { columns as userColumns } from "./user-columns";
 
   import type { PageProps } from "./$types";
   import { CookingPot, ShoppingCart, Users } from "@lucide/svelte";
   import type { UserData } from "$lib/$types";
+  import UserTable from "./user-table.svelte";
 
   let { data }: PageProps = $props();
 
@@ -89,7 +89,7 @@
           <Card.Description>Manage users and their roles</Card.Description>
         </Card.Header>
         <Card.Content>
-          <UserTable {users} />
+          <UserTable data={users} columns={userColumns} />
         </Card.Content>
       </Card.Root>
     </Tabs.Content>
