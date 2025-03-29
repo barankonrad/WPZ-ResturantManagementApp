@@ -6,8 +6,8 @@
 
 <Tooltip.Provider>
   <Tooltip.Root>
-    <Tooltip.Trigger>
-      <a onclick={() => navigator.clipboard.writeText(id)}>{id.slice(0, 8)}...</a>
+    <Tooltip.Trigger class="w-48 overflow-hidden text-ellipsis text-nowrap">
+      <a onclick={() => navigator.clipboard.writeText(id)}>{id}</a>
     </Tooltip.Trigger>
     <Tooltip.Content>
       <p>{id}</p>

@@ -22,7 +22,7 @@
 </script>
 
 <Select.Root type="multiple" bind:value={roles}>
-  <Select.Trigger class="w-[200px] justify-between" role="combobox">
+  <Select.Trigger class="w-[200px] justify-between overflow-hidden" role="combobox">
     <div class="flex items-center gap-2">
       {#if roles.length > 0}
         {#each roles as role}
