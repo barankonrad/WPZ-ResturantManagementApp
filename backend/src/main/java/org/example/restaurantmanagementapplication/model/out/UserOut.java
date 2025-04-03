@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.restaurantmanagementapplication.entity.Role;
 import org.example.restaurantmanagementapplication.entity.User;
 
 @Getter
@@ -15,15 +14,9 @@ public class UserOut {
 
   private Integer id;
   private String email;
-  private String[] roles;
+  private String roles;
 
   public static UserOut fromEntity(final User user) {
-    return new UserOut(
-        user.getId(),
-        user.getEmail(),
-        user.getRoles().stream()
-            .map(Role::getName)
-            .toArray(String[]::new)
-    );
+    return new UserOut(user.getId(), user.getEmail(), user.getRole().getName());
   }
 }
