@@ -2,6 +2,8 @@ package org.example.restaurantmanagementapplication.service;
 
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.entity.Role;
 import org.example.restaurantmanagementapplication.entity.User;
@@ -35,12 +37,14 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public User save(User user) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return userRepository.save(user);
 	}
 
 	@Override
+	@Transactional
 	public void deleteById(int id) {
 		userRepository.deleteById(id);
 	}

@@ -1,7 +1,6 @@
 package org.example.restaurantmanagementapplication.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.restaurantmanagementapplication.entity.Role;
 import org.example.restaurantmanagementapplication.entity.User;
 import org.example.restaurantmanagementapplication.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,16 +16,18 @@ public class CustomUserDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = userService.findByEmail(username)
-        .orElseThrow(() -> new UsernameNotFoundException(username));
+    User user =
+        userService
+            .findByEmail(username)
+            .orElseThrow(() -> new UsernameNotFoundException(username));
 
     return org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
         .password(user.getPassword())
-        .authorities(getRoleNames(user))
+        .authorities(getRoleName(user))
         .build();
   }
 
-  private String[] getRoleNames(User user) {
-    return user.getRoles().stream().map(Role::getName).toArray(String[]::new);
+  private String getRoleName(User user) {
+    return user.getRole().getName();
   }
 }
