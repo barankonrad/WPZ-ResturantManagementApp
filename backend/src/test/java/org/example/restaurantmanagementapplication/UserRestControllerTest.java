@@ -3,6 +3,7 @@ package org.example.restaurantmanagementapplication;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -314,9 +315,12 @@ public class UserRestControllerTest {
     user.setEmail("test@example.com");
     user.setRole(role);
 
+    Role newRole = new Role();
+    newRole.setId(999);
+    newRole.setName("ROLE_TEST");
+
     User newUser = new User();
-    newUser.setRole(new Role());
-    newUser.getRole().setId(999);
+    newUser.setRole(newRole);
 
     when(userService.findById(1)).thenReturn(user);
     when(roleService.findById(999)).thenReturn(null);

@@ -20,4 +20,12 @@ public class Role {
 
   @Column(name = "name")
   private String name;
+
+  public void setName(String name) {
+    if (!name.startsWith("ROLE_")) {
+      this.name = "ROLE_" + name;
+    } else {
+      this.name = name;
+    }
+  }
 }
