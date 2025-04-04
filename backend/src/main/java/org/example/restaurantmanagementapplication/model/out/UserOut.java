@@ -14,7 +14,7 @@ public class UserOut {
 
   private Integer id;
   private String email;
-  private String roles;
+  private String role;
 
   public static UserOut fromEntity(final User user) {
     return new UserOut(user.getId(), user.getEmail(), user.getRole().getName());
