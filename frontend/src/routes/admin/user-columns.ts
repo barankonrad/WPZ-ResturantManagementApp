@@ -1,16 +1,16 @@
-import type { UserRole } from "$lib/$types";
 import { renderComponent } from "$lib/components/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
 
-import UserTableIdActions from "./user-table-id-actions.svelte";
-import UserTableRoleActions from "./user-table-role-actions.svelte";
-import UserTableActions from "./user-table-actions.svelte";
+import UserTableIdActions from "./_components/user-table-id-actions.svelte";
+import UserTableRoleActions from "./_components/user-table-role-actions.svelte";
+import UserTableActions from "./_components/user-table-actions.svelte";
 import { Checkbox } from "$lib/components/ui/checkbox";
+import type { Role } from "$lib/types/user";
 
 export type UserRow = {
   id: string;
   email: string;
-  role: UserRole;
+  roles: Role[];
 };
 
 export const columns: ColumnDef<UserRow>[] = [
@@ -49,7 +49,7 @@ export const columns: ColumnDef<UserRow>[] = [
     cell: ({ row }) => {
       return renderComponent(UserTableRoleActions, {
         id: row.original.id,
-        role: row.original.role
+        roles: row.original.roles
       });
     }
   },

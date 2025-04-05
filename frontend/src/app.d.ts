@@ -1,12 +1,12 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 
-import type { UserData } from "$lib/$types";
+import type { User } from "$lib/types/user";
 
 // for information about these interfaces
 declare global {
   namespace App {
     interface Locals {
-      user: UserData;
+      user: User | null;
     }
     // interface Error {}
     // interface PageData {}
