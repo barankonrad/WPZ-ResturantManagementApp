@@ -28,7 +28,11 @@
   </Select.Trigger>
   <Select.Content>
     {#each Object.entries(userRoles) as [label, value] (value)}
-      <Select.Item {value}>{label}</Select.Item>
+      {@const RoleIcon = RoleToIconMapping[value]}
+      <Select.Item class="flex items-center gap-2 capitalize" {value}>
+        <RoleIcon class="h-4 w-4 text-foreground" />
+        {label}
+      </Select.Item>
     {/each}
   </Select.Content>
 </Select.Root>
