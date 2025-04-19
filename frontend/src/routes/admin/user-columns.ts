@@ -5,15 +5,9 @@ import UserTableIdActions from "./_components/user-table-id-actions.svelte";
 import UserTableRoleActions from "./_components/user-table-role-actions.svelte";
 import UserTableActions from "./_components/user-table-actions.svelte";
 import { Checkbox } from "$lib/components/ui/checkbox";
-import type { Role } from "$lib/types/user";
+import type { User } from "$lib/types/user";
 
-export type UserRow = {
-  id: string;
-  email: string;
-  roles: Role[];
-};
-
-export const columns: ColumnDef<UserRow>[] = [
+export const columns: ColumnDef<User>[] = [
   {
     id: "select",
     header: ({ table }) =>
@@ -49,7 +43,7 @@ export const columns: ColumnDef<UserRow>[] = [
     cell: ({ row }) => {
       return renderComponent(UserTableRoleActions, {
         id: row.original.id,
-        roles: row.original.roles
+        role: row.original.role
       });
     }
   },
@@ -57,6 +51,7 @@ export const columns: ColumnDef<UserRow>[] = [
     id: "actions",
     cell: ({ row }) => {
       return renderComponent(UserTableActions, { id: row.original.id });
-    }
+    },
+    enableHiding: false
   }
 ];

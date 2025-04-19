@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { CircleHelp, ShieldPlus, ShieldUser, Utensils } from "@lucide/svelte";
+  import { ShieldPlus, ShieldUser, Utensils } from "@lucide/svelte";
   import * as Select from "$lib/components/ui/select";
 
   import { type Role, stripRolePrefix, roles as userRoles } from "$lib/types/user";
 
   interface Props {
-    roles: Role[];
+    role: Role;
   }
 
-  let { roles }: Props = $props();
+  let { role }: Props = $props();
 
   const RoleToIconMapping = {
     [userRoles.admin]: ShieldUser,
@@ -16,25 +16,14 @@
     [userRoles.waiter]: Utensils
   };
 
-  $effect(() => {
-    console.log("Roles have changed");
-  });
+  let RoleIcon = $derived(RoleToIconMapping[role])
 </script>
 
-<Select.Root type="multiple" bind:value={roles}>
+<Select.Root type="single" bind:value={role}>
   <Select.Trigger class="w-[200px] justify-between overflow-hidden" role="combobox">
     <div class="flex items-center gap-2">
-      {#if roles.length > 0}
-        {#each roles as role}
-          {@const TheIcon = RoleToIconMapping[role]}
-
-          <TheIcon class="h-4 w-4 text-foreground" />
-          <span class="capitalize">{stripRolePrefix(role)?.toLowerCase()}</span>
-        {/each}
-      {:else}
-        <CircleHelp class="h-4 w-4 text-muted-foreground" />
-        <span class="text-sm text-muted-foreground">Select a role...</span>
-      {/if}
+      <RoleIcon class="h-4 w-4 text-foreground" />
+      <span class="capitalize">{stripRolePrefix(role)?.toLowerCase()}</span>
     </div>
   </Select.Trigger>
   <Select.Content>

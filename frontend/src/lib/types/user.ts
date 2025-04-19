@@ -13,9 +13,9 @@ export const roleSchema = v.pipe(v.string(), v.enum(roles, "Invalid role"));
 export type Role = v.InferOutput<typeof roleSchema>
 
 export const userSchema = v.strictObject({
-  id: v.pipe(v.string(), v.uuid()),
+  id: v.pipe(v.number(), v.integer()),
   email: v.pipe(v.string(), v.email()),
-  roles: v.array(roleSchema)
+  role: roleSchema
 });
 
 export type User = v.InferOutput<typeof userSchema>;

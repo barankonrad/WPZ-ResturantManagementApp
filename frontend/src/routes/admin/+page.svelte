@@ -3,73 +3,70 @@
   import * as Tabs from "$lib/components/ui/tabs";
   import { columns as userColumns } from "./user-columns";
 
-  import type { PageProps } from "./$types";
   import { CookingPot, ShoppingCart, Users } from "@lucide/svelte";
   import UserTable from "./_components/user-table.svelte";
   import type { User } from "$lib/types/user";
 
-  let { data }: PageProps = $props();
-
   let users: User[] = [
     {
-      id: "c22c7ed9-c62b-44bc-8f32-13cebac6893f",
+      id: 1,
       email: "user1@example.org",
-      roles: ["ROLE_MANAGER"]
+      role: "ROLE_MANAGER"
     },
     {
-      id: "9968cdcb-e4e1-4ff3-9d92-1f92fec1607e",
+      id: 2,
       email: "user2@example.org",
-      roles: ["ROLE_MANAGER"]
+      role: "ROLE_MANAGER"
     },
     {
-      id: "b4f36989-8283-4908-85ad-68e4da0bdc32",
+      id: 3,
       email: "user3@example.org",
-      roles: ["ROLE_MANAGER"]
+      role: "ROLE_MANAGER"
     },
     {
-      id: "784f286c-7961-4665-8320-daa6d90f8e01",
+      id: 4,
       email: "chef1@example.org",
-      roles: ["ROLE_WAITER"]
+      role: "ROLE_WAITER"
     },
     {
-      id: "ca8d0d3e-24f7-494f-b94b-0ccede8b8baf",
+      id: 5,
       email: "chef2@example.org",
-      roles: ["ROLE_WAITER"]
+      role: "ROLE_WAITER"
     },
     {
-      id: "ae248348-c056-4cf5-9ea3-fd05329d2d9f",
+      id: 6,
       email: "chef3@example.org",
-      roles: ["ROLE_WAITER"]
+      role: "ROLE_WAITER"
     },
     {
-      id: "a9c0fc48-672d-4188-ae1e-06a24bf1a9f1",
+      id: 7,
       email: "waiter1@example.org",
-      roles: ["ROLE_WAITER"]
+      role: "ROLE_WAITER"
     },
     {
-      id: "46dde7e1-9a02-4f4f-bded-d5fad78faadc",
+      id: 8,
       email: "waiter2@example.org",
-      roles: ["ROLE_WAITER"]
+      role: "ROLE_WAITER"
     },
     {
-      id: "86b56198-30c4-42c1-acd3-55989e4c1c10",
+      id: 9,
       email: "waiter3@example.org",
-      roles: ["ROLE_WAITER"]
+      role: "ROLE_WAITER"
     },
     {
-      id: "19cc0594-117b-4193-83e4-950e95f60bb2",
+      id: 10,
       email: "manager1@example.org",
-      roles: ["ROLE_MANAGER"]
+      role: "ROLE_MANAGER"
     },
     {
-      id: "62c740a8-6d41-4ac7-8bf4-3edaff83f439",
+      id: 11,
       email: "manager2@example.org",
-      roles: ["ROLE_MANAGER"]
+      role: "ROLE_MANAGER"
     },
     {
-      id: "66859eb2-3cee-4b32-b5b0-5d3e11aeaf4f",
+      id: 12,
       email: "admin@example.org",
-      roles: ["ROLE_ADMIN"]
+      role: "ROLE_ADMIN"
     }
   ];
 
