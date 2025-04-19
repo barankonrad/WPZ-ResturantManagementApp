@@ -29,6 +29,7 @@
           body: JSON.stringify(form.data)
         });
       } catch (e) {
+        console.error(e);
         return setError(form, "Something went really wrong :-(");
       }
 
@@ -76,10 +77,12 @@
               <Form.Label>Role</Form.Label>
               <Select.Root type="single" name={props.name} bind:value={$formData.role}>
                 <Select.Trigger class="flex w-full"
-                  >{$formData.role ? stripRolePrefix($formData.role)?.toLowerCase() : "Select a role"}</Select.Trigger
+                  >{$formData.role
+                    ? stripRolePrefix($formData.role)?.toLowerCase()
+                    : "Select a role"}</Select.Trigger
                 >
                 <Select.Content>
-                  {#each Object.entries(roles) as [label, value]}
+                  {#each Object.entries(roles) as [label, value] (value)}
                     <Select.Item {label} {value}>{label}</Select.Item>
                   {/each}
                 </Select.Content>

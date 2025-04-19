@@ -16,7 +16,7 @@
     [userRoles.waiter]: Utensils
   };
 
-  let RoleIcon = $derived(RoleToIconMapping[role])
+  let RoleIcon = $derived(RoleToIconMapping[role]);
 </script>
 
 <Select.Root type="single" bind:value={role}>
@@ -27,7 +27,7 @@
     </div>
   </Select.Trigger>
   <Select.Content>
-    {#each Object.entries(userRoles) as [label, value]}
+    {#each Object.entries(userRoles) as [label, value] (value)}
       <Select.Item {value}>{label}</Select.Item>
     {/each}
   </Select.Content>

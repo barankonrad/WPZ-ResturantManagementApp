@@ -1,1 +1,1 @@
-export const baseURL = "https://ordersync.online"
+export const baseURL = "https://ordersync.online";

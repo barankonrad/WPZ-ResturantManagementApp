@@ -69,7 +69,7 @@
                   <UserIcon class="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenu.Item>
-                {#if user.roles.includes(roles.admin)}
+                {#if user.role === roles.admin}
                   <DropdownMenu.Item onclick={() => goto("/admin")}>
                     <FileSliders class="mr-2 h-4 w-4" />
                     <span>Admin panel</span>

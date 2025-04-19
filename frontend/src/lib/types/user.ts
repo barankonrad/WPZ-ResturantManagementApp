@@ -6,11 +6,11 @@ export const roles = {
   waiter: "ROLE_WAITER"
 } as const;
 
-export const stripRolePrefix = (s: Role) => s.split('_').at(-1)
+export const stripRolePrefix = (s: Role) => s.split("_").at(-1);
 
 export const roleSchema = v.pipe(v.string(), v.enum(roles, "Invalid role"));
 
-export type Role = v.InferOutput<typeof roleSchema>
+export type Role = v.InferOutput<typeof roleSchema>;
 
 export const userSchema = v.strictObject({
   id: v.pipe(v.number(), v.integer()),
@@ -19,4 +19,3 @@ export const userSchema = v.strictObject({
 });
 
 export type User = v.InferOutput<typeof userSchema>;
-
