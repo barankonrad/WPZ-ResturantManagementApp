@@ -6,9 +6,10 @@
   import { Input } from "$lib/components/ui/input";
 
   import { superForm, setError, defaults } from "sveltekit-superforms";
-  import { registerSchema, roles } from "./schema";
+  import { registerSchema } from "./schema";
   import { valibot } from "sveltekit-superforms/adapters";
   import { goto } from "$app/navigation";
+  import { roles, stripRolePrefix } from "$lib/types/user";
 
   const form = superForm(defaults(valibot(registerSchema)), {
     SPA: true,
@@ -28,6 +29,7 @@
           body: JSON.stringify(form.data)
         });
       } catch (e) {
+        console.error(e);
         return setError(form, "Something went really wrong :-(");
       }
 
@@ -75,13 +77,13 @@
               <Form.Label>Role</Form.Label>
               <Select.Root type="single" name={props.name} bind:value={$formData.role}>
                 <Select.Trigger class="flex w-full"
-                  >{$formData.role ? $formData.role.toLowerCase() : "Select a role"}</Select.Trigger
+                  >{$formData.role
+                    ? stripRolePrefix($formData.role)?.toLowerCase()
+                    : "Select a role"}</Select.Trigger
                 >
                 <Select.Content>
-                  {#each Object.values(roles) as role}
-                    <Select.Item value={role} label={role.toLowerCase()}
-                      >{role.toLowerCase()}</Select.Item
-                    >
+                  {#each Object.entries(roles) as [label, value] (value)}
+                    <Select.Item {label} {value}>{label}</Select.Item>
                   {/each}
                 </Select.Content>
               </Select.Root>

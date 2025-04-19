@@ -1,14 +1,25 @@
 <script lang="ts">
   import * as Avatar from "$lib/components/ui/avatar";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
-  import { LogIn, Sun, Moon, LogOut, User, FileSliders } from "@lucide/svelte";
+  import { LogIn, LogOut, Sun, Moon, UserIcon, UserRoundPlus, FileSliders } from "@lucide/svelte";
+
+  import { roles, type User } from "$lib/types/user";
 
   import { page } from "$app/state";
   import { toggleMode } from "mode-watcher";
+  import { cn } from "$lib/utils";
+  import { goto } from "$app/navigation";
 
-  import type { UserData } from "../$types";
+  interface Props {
+    user: User | null;
+  }
 
-  let { user }: { user: UserData | null } = $props();
+  let { user }: Props = $props();
+
+  const navbarItems = [
+    { name: "Home", path: "/" },
+    { name: "Menu", path: "/menu" }
+  ];
 
   let activeStyle = "text-red-600 border-b-2 border-red-600";
   let inactiveStyle = "text-gray-500 hover:text-gray-700";
@@ -27,25 +38,17 @@
         <span class="text-xl font-bold text-red-600">Restaurant</span>
       </a>
       <nav class="sm:ml-6 sm:flex sm:space-x-8">
-        <a
-          href="/"
-          class="hover:text-red-600 dark:text-gray-100 dark:hover:text-red-400 {page.url
-            .pathname === '/'
-            ? activeStyle
-            : inactiveStyle}"
-        >
-          Home
-        </a>
-        <a
-          href="/menu"
-          class="hover:text-red-600 dark:text-gray-100 dark:hover:text-red-400 {page.url.pathname.startsWith(
-            '/menu'
-          )
-            ? activeStyle
-            : inactiveStyle}"
-        >
-          Menu
-        </a>
+        {#each navbarItems as item (item.path)}
+          <a
+            href={item.path}
+            class={cn(
+              "hover:text-red-600 dark:text-gray-100 dark:hover:text-red-400",
+              page.url.pathname === item.path ? activeStyle : inactiveStyle
+            )}
+          >
+            {item.name}
+          </a>
+        {/each}
       </nav>
     </div>
     <div class="flex items-center">
@@ -53,27 +56,27 @@
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
             <Avatar.Root>
-              <Avatar.Image src={user ? "https://github.com/shadcn.png" : null} alt="Avatar" />
+              <Avatar.Image src={user ? "https://picsum.photos/256/256" : null} alt="Avatar" />
               <Avatar.Fallback>{user ? user.email.substring(0, 2) : "ʘ‿ʘ"}</Avatar.Fallback>
             </Avatar.Root>
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content>
+          <DropdownMenu.Content align="end" sideOffset={10}>
             <DropdownMenu.Group>
               <DropdownMenu.Label>{user ? user.email : "Guest"}</DropdownMenu.Label>
               <DropdownMenu.Separator />
               {#if user}
-                <DropdownMenu.Item onclick={() => (window.location.href = "/profile")}>
-                  <User class="mr-2 h-4 w-4" />
+                <DropdownMenu.Item onclick={() => goto("/profile")}>
+                  <UserIcon class="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenu.Item>
-                {#if user.role === "admin"}
-                  <DropdownMenu.Item onclick={() => (window.location.href = "/admin")}>
+                {#if user.role === roles.admin}
+                  <DropdownMenu.Item onclick={() => goto("/admin")}>
                     <FileSliders class="mr-2 h-4 w-4" />
                     <span>Admin panel</span>
                   </DropdownMenu.Item>
                 {/if}
               {/if}
-              <DropdownMenu.Item onclick={toggleMode}>
+              <DropdownMenu.Item onclick={() => toggleMode()}>
                 <Sun
                   class="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
                 />
@@ -83,14 +86,18 @@
                 <span>Toggle theme</span>
               </DropdownMenu.Item>
               {#if user}
-                <DropdownMenu.Item onclick={logOut}>
+                <DropdownMenu.Item onclick={() => logOut()}>
                   <LogOut class="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenu.Item>
               {:else}
-                <DropdownMenu.Item onclick={() => (window.location.href = "/login")}>
+                <DropdownMenu.Item onclick={() => goto("/login")}>
                   <LogIn class="mr-2 h-4 w-4" />
                   <span>Log in</span>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => goto("/register")}>
+                  <UserRoundPlus class="mr-2 h-4 w-4" />
+                  <span>Register</span>
                 </DropdownMenu.Item>
               {/if}
             </DropdownMenu.Group>

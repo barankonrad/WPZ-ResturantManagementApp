@@ -162,7 +162,7 @@
 
   <div class="flex flex-row items-center justify-between">
     <div class="flex-1 text-sm text-muted-foreground">
-      {table.getFilteredSelectedRowModel().rows.length} of{" "}
+      {table.getFilteredSelectedRowModel().rows.length} of
       {table.getFilteredRowModel().rows.length} row(s) selected.
     </div>
 

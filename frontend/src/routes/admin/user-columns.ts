@@ -1,19 +1,13 @@
-import type { UserRole } from "$lib/$types";
 import { renderComponent } from "$lib/components/ui/data-table";
 import type { ColumnDef } from "@tanstack/table-core";
 
-import UserTableIdActions from "./user-table-id-actions.svelte";
-import UserTableRoleActions from "./user-table-role-actions.svelte";
-import UserTableActions from "./user-table-actions.svelte";
+import UserTableIdActions from "./_components/user-table-id-actions.svelte";
+import UserTableRoleActions from "./_components/user-table-role-actions.svelte";
+import UserTableActions from "./_components/user-table-actions.svelte";
 import { Checkbox } from "$lib/components/ui/checkbox";
+import type { User } from "$lib/types/user";
 
-export type UserRow = {
-  id: string;
-  email: string;
-  role: UserRole;
-};
-
-export const columns: ColumnDef<UserRow>[] = [
+export const columns: ColumnDef<User>[] = [
   {
     id: "select",
     header: ({ table }) =>
@@ -57,6 +51,7 @@ export const columns: ColumnDef<UserRow>[] = [
     id: "actions",
     cell: ({ row }) => {
       return renderComponent(UserTableActions, { id: row.original.id });
-    }
+    },
+    enableHiding: false
   }
 ];

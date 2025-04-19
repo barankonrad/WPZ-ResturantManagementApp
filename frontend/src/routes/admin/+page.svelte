@@ -3,27 +3,73 @@
   import * as Tabs from "$lib/components/ui/tabs";
   import { columns as userColumns } from "./user-columns";
 
-  import type { PageProps } from "./$types";
   import { CookingPot, ShoppingCart, Users } from "@lucide/svelte";
-  import type { UserData } from "$lib/$types";
-  import UserTable from "./user-table.svelte";
+  import UserTable from "./_components/user-table.svelte";
+  import type { User } from "$lib/types/user";
 
-  let { data }: PageProps = $props();
-
-  let users: UserData[] = [
-    { id: "c22c7ed9-c62b-44bc-8f32-13cebac6893f", email: "user1@example.org", role: "user" },
-    { id: "9968cdcb-e4e1-4ff3-9d92-1f92fec1607e", email: "user2@example.org", role: "user" },
-    { id: "b4f36989-8283-4908-85ad-68e4da0bdc32", email: "user3@example.org", role: "user" },
-    { id: "784f286c-7961-4665-8320-daa6d90f8e01", email: "chef1@example.org", role: "chef" },
-    { id: "ca8d0d3e-24f7-494f-b94b-0ccede8b8baf", email: "chef2@example.org", role: "chef" },
-    { id: "ae248348-c056-4cf5-9ea3-fd05329d2d9f", email: "chef3@example.org", role: "chef" },
-    { id: "a9c0fc48-672d-4188-ae1e-06a24bf1a9f1", email: "waiter1@example.org", role: "waiter" },
-    { id: "46dde7e1-9a02-4f4f-bded-d5fad78faadc", email: "waiter2@example.org", role: "waiter" },
-    { id: "86b56198-30c4-42c1-acd3-55989e4c1c10", email: "waiter3@example.org", role: "waiter" },
-    { id: "19cc0594-117b-4193-83e4-950e95f60bb2", email: "manager1@example.org", role: "manager" },
-    { id: "62c740a8-6d41-4ac7-8bf4-3edaff83f439", email: "manager2@example.org", role: "manager" },
-    { id: "66859eb2-3cee-4b32-b5b0-5d3e11aeaf4f", email: "admin@example.org", role: "admin" }
+  let users: User[] = [
+    {
+      id: 1,
+      email: "user1@example.org",
+      role: "ROLE_MANAGER"
+    },
+    {
+      id: 2,
+      email: "user2@example.org",
+      role: "ROLE_MANAGER"
+    },
+    {
+      id: 3,
+      email: "user3@example.org",
+      role: "ROLE_MANAGER"
+    },
+    {
+      id: 4,
+      email: "chef1@example.org",
+      role: "ROLE_WAITER"
+    },
+    {
+      id: 5,
+      email: "chef2@example.org",
+      role: "ROLE_WAITER"
+    },
+    {
+      id: 6,
+      email: "chef3@example.org",
+      role: "ROLE_WAITER"
+    },
+    {
+      id: 7,
+      email: "waiter1@example.org",
+      role: "ROLE_WAITER"
+    },
+    {
+      id: 8,
+      email: "waiter2@example.org",
+      role: "ROLE_WAITER"
+    },
+    {
+      id: 9,
+      email: "waiter3@example.org",
+      role: "ROLE_WAITER"
+    },
+    {
+      id: 10,
+      email: "manager1@example.org",
+      role: "ROLE_MANAGER"
+    },
+    {
+      id: 11,
+      email: "manager2@example.org",
+      role: "ROLE_MANAGER"
+    },
+    {
+      id: 12,
+      email: "admin@example.org",
+      role: "ROLE_ADMIN"
+    }
   ];
+
   let orders = [];
   let menuItems = [
     { name: "Pizza", price: 10 },

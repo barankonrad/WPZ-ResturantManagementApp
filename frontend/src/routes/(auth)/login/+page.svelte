@@ -27,8 +27,8 @@
           body: JSON.stringify(form.data)
         });
       } catch (e) {
-        setError(form, "Something went really wrong :-(");
-        return;
+        console.error(e);
+        return setError(form, "Something went really wrong :-(");
       }
 
       if (response.status === 200) {

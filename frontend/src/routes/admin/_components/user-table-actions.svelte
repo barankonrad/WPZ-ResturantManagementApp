@@ -3,8 +3,9 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { Clipboard, UserMinus } from "@lucide/svelte";
+  import type { User } from "$lib/types/user";
 
-  let { id }: { id: string } = $props();
+  let { id }: { id: User["id"] } = $props();
 
   const removeUser = () => {
     // TODO: Implement the logic to remove a user
@@ -23,7 +24,7 @@
     {/snippet}
   </DropdownMenu.Trigger>
   <DropdownMenu.Content>
-    <DropdownMenu.Item onclick={() => navigator.clipboard.writeText(id)}>
+    <DropdownMenu.Item onclick={() => navigator.clipboard.writeText(`${id}`)}>
       <div class="flex flex-row items-center gap-2">
         <Clipboard class="h-4 w-4" />
         <span class="text-sm">Copy ID</span>
