@@ -6,37 +6,25 @@
   import { Input } from "$lib/components/ui/input";
 
   import { superForm, setError, defaults } from "sveltekit-superforms";
-  import { registerSchema } from "./schema";
+  import { register, RegisterRequestSchema } from "$lib/api/auth";
   import { valibot } from "sveltekit-superforms/adapters";
   import { goto } from "$app/navigation";
   import { roles, stripRolePrefix } from "$lib/types/user";
 
-  const form = superForm(defaults(valibot(registerSchema)), {
+  const form = superForm(defaults(valibot(RegisterRequestSchema)), {
     SPA: true,
-    validators: valibot(registerSchema),
+    validators: valibot(RegisterRequestSchema),
     onUpdate: async ({ form }) => {
       if (!form.valid) {
         return;
       }
 
-      let response;
+      const { authenticated, error } = await register(form.data);
 
-      try {
-        response = await fetch("https://ordersync.online/api/register", {
-          method: "POST",
-          credentials: "include",
-          mode: "cors",
-          body: JSON.stringify(form.data)
-        });
-      } catch (e) {
-        console.error(e);
-        return setError(form, "Something went really wrong :-(");
-      }
-
-      if (response.status === 200) {
+      if (authenticated) {
         goto("/");
       } else {
-        setError(form, response.statusText);
+        setError(form, (error as any).message);
       }
     }
   });

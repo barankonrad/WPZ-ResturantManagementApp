@@ -1,24 +1,56 @@
 import { me } from "$lib/api/auth";
-import { roles, type User } from "$lib/types/user";
-import { error, type Handle } from "@sveltejs/kit";
+import { roles, type Role, type User } from "$lib/types/user";
+import { error, redirect, type Handle } from "@sveltejs/kit";
+import { MOCKED_USER } from "$env/static/private";
 
 export const handle: Handle = async ({ event, resolve }) => {
-  const response = await me();
-  event.locals.user = response.authenticated ? response.user! : null;
-
-  event.locals.user = userMock();
-
   const route = event.route.id;
 
-  if (route?.startsWith("/admin") && event.locals.user?.role !== roles.admin) {
-    error(401, "Unauthorized");
+  // No route matched
+  if (route === null) {
+    return redirect(307, "/");
+  }
+
+  if (MOCKED_USER === "true") {
+    event.locals.user = userMock();
+  } else {
+    const response = await me(event.fetch);
+    event.locals.user = response.authenticated ? response.user! : null;
+  }
+
+  console.log("event.locals.user", event.locals.user);
+
+  if (event.locals.user == null) {
+    // Only allow login page for unauthenticated users
+
+    if (route !== "/") {
+      return redirect(307, "/");
+    }
+
+    return await resolve(event);
+  } else {
+    // Logged in users should land on /menu
+
+    if (route === "/") {
+      return redirect(307, "/menu");
+    }
+  }
+
+  const allowedRoutes: { [K in Role]: string[] } = {
+    [roles.admin]: ["/menu", "/orders", "/admin"],
+    [roles.manager]: ["/menu", "/orders"],
+    [roles.waiter]: ["/menu", "/orders"]
+  };
+
+  if (!allowedRoutes[event.locals.user.role].includes(route)) {
+    return error(401, "Unauthorized");
   }
 
   return await resolve(event);
 };
 
 const userMock = (): User => ({
-  id: 2137 + Math.random() * 1000,
+  id: 2137,
   email: "test@restaurant.com",
   role: roles.admin
 });
