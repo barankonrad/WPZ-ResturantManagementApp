@@ -57,7 +57,6 @@ public class AuthController {
 
   private User getCurrentUser(Authentication authentication) {
     final var username = ((org.springframework.security.core.userdetails.User) authentication.getPrincipal()).getUsername();
-    final var user = userService.findByUsername(username);
-    return user;
+    return userService.findByUsername(username);
   }
 }
