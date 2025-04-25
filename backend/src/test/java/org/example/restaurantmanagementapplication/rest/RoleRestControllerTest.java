@@ -1,4 +1,4 @@
-package org.example.restaurantmanagementapplication;
+package org.example.restaurantmanagementapplication.rest;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import org.example.restaurantmanagementapplication.entity.Role;
-import org.example.restaurantmanagementapplication.rest.RoleRestController;
 import org.example.restaurantmanagementapplication.service.RoleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

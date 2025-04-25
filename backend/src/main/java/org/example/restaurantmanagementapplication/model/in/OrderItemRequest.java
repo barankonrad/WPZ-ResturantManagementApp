@@ -3,8 +3,8 @@ package org.example.restaurantmanagementapplication.model.in;
 import lombok.Data;
 
 @Data
-public class LoginRequest {
+public class OrderItemRequest {
 
-  private String username;
-  private String password;
+  private long menuItemId;
+  private int quantity;
 }
