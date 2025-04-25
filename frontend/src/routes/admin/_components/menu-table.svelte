@@ -16,6 +16,7 @@
   import { Input } from "$lib/components/ui/input";
   import { CirclePlus } from "@lucide/svelte";
   import MenuAddDialog from "./menu-add-dialog.svelte";
+  import type { MenuItem } from "$lib/types/menu";
 
   type DataTableProps<TData, TValue> = {
     columns: ColumnDef<TData, TValue>[];
@@ -81,6 +82,16 @@
       }
     }
   });
+
+  const addMenuItem = (name: string, price: number) => {
+    const newItem: MenuItem = {
+      id: data.length + 1,
+      name,
+      price
+    };
+
+    data = [...data, newItem];
+  };
 </script>
 
 <div>
@@ -182,5 +193,5 @@
     </div>
   </div>
 
-  <MenuAddDialog isOpen={isDialogOpen} setOpen={(v) => (isDialogOpen = v)} />
+  <MenuAddDialog isOpen={isDialogOpen} setOpen={(v) => (isDialogOpen = v)} addData={addMenuItem} />
 </div>

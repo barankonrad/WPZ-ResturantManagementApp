@@ -6,13 +6,20 @@
   import { AspectRatio } from "$lib/components/ui/aspect-ratio";
   import { Upload } from "@lucide/svelte";
 
-  let { isOpen, setOpen } = $props();
+  let { isOpen, setOpen, addData } = $props();
+
   let files: FileList | undefined = $state();
+  let name: string = $state("");
+  let price: number = $state(0);
 
   const handleAdd = () => {
-    // Handle adding the new menu item
     console.log("New menu item added");
+    addData(name, price);
+
     setOpen(false);
+    name = "";
+    price = 0;
+    files = undefined;
   };
 </script>
 
@@ -26,9 +33,9 @@
     <div class="flex flex-row gap-4">
       <div class="flex w-full max-w-sm flex-col">
         <AspectRatio ratio={1 / 1} class="rounded-md bg-muted">
-          {#if files}
+          {#if files && files.length > 0}
             <img
-              src={URL.createObjectURL(files[0])}
+              src={URL.createObjectURL(files[0] as File)}
               alt="Menu item"
               class="absolute h-full w-full rounded-md object-cover"
             />
@@ -52,12 +59,12 @@
       <div class="flex w-full flex-col gap-4">
         <div class="flex w-full max-w-sm flex-col gap-1.5">
           <Label for="name">Name</Label>
-          <Input type="text" id="name" placeholder="Burger" />
+          <Input type="text" id="name" placeholder="Burger" bind:value={name} />
         </div>
 
         <div class="flex w-full max-w-sm flex-col gap-1.5">
           <Label for="price">Price</Label>
-          <Input type="number" min="0" step="0.5" id="price" placeholder="5" />
+          <Input type="number" min="0" step="0.5" id="price" placeholder="5" bind:value={price} />
         </div>
       </div>
     </div>
