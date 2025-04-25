@@ -26,16 +26,17 @@ public class AuthController {
   private final UserService userService;
 
   @PostMapping("/login")
-  public ResponseEntity<Authentication> login(@RequestBody LoginRequest loginRequest) {
+  public ResponseEntity<UserOut> login(@RequestBody LoginRequest loginRequest) {
     try {
       var authenticationToken = new UsernamePasswordAuthenticationToken(
-          loginRequest.getUsername(), loginRequest.getPassword());
+          loginRequest.getEmail(), loginRequest.getPassword());
 
       Authentication authentication = authenticationManager.authenticate(authenticationToken);
       SecurityContextHolder.getContext().setAuthentication(authentication);
       httpSession.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-      return ResponseEntity.ok().body(authentication);
+      final var currentUser = getCurrentUser(authentication);
+      return ResponseEntity.ok().body(UserOut.fromEntity(currentUser));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
@@ -45,13 +46,17 @@ public class AuthController {
   public ResponseEntity<UserOut> me() {
     final var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+    if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal()
+        .equals("anonymousUser")) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-    final var username = ((org.springframework.security.core.userdetails.User) authentication.getPrincipal()).getUsername();
-    final var user = userService.findByUsername(username);
+    final var currentUser = getCurrentUser(authentication);
+    return ResponseEntity.ok().body(UserOut.fromEntity(currentUser));
+  }
 
-    return ResponseEntity.ok().body(UserOut.fromEntity(user));
+  private User getCurrentUser(Authentication authentication) {
+    final var username = ((org.springframework.security.core.userdetails.User) authentication.getPrincipal()).getUsername();
+    return userService.findByUsername(username);
   }
 }
