@@ -6,43 +6,53 @@
   import { Button } from "$lib/components/ui/button";
   import { AspectRatio } from "$lib/components/ui/aspect-ratio";
   import { ShoppingCart } from "@lucide/svelte";
+  import type { MenuItem } from "$lib/types/menu";
+  import type { Cart } from "$lib/types/cart";
 
-  let menuItems = [
-    { name: "Pizza", price: 10 },
-    { name: "Burger", price: 8 },
-    { name: "Pasta", price: 12 },
-    { name: "Salad", price: 7 },
-    { name: "Soda", price: 2 },
-    { name: "Water", price: 1 },
-    { name: "Ice Cream", price: 5 },
-    { name: "Cake", price: 4 },
-    { name: "Fries", price: 3 },
-    { name: "Wings", price: 9 },
-    { name: "Steak", price: 15 },
-    { name: "Tacos", price: 6 },
-    { name: "Sandwich", price: 8 },
-    { name: "Soup", price: 5 },
-    { name: "Breadsticks", price: 4 },
-    { name: "Nachos", price: 7 },
-    { name: "Brownie", price: 3 },
-    { name: "Pudding", price: 2 },
-    { name: "Muffin", price: 3 },
-    { name: "Cupcake", price: 4 },
-    { name: "Pie", price: 5 },
-    { name: "Donut", price: 2 },
-    { name: "Bagel", price: 3 },
-    { name: "Croissant", price: 4 },
-    { name: "Tart", price: 5 },
-    { name: "Pancakes", price: 6 },
-    { name: "Waffles", price: 7 },
-    { name: "French Toast", price: 8 },
-    { name: "Omelette", price: 9 },
-    { name: "Quiche", price: 10 },
-    { name: "Frittata", price: 11 },
-    { name: "Crepes", price: 12 },
-    { name: "Scone", price: 3 },
-    { name: "Mousse", price: 4 },
-    { name: "Cheesecake", price: 5 }
+  interface Props {
+    data: {
+      cart: Cart;
+    };
+  }
+
+  let { data }: Props = $props();
+
+  let menuItems: MenuItem[] = [
+    { id: "1", name: "Pizza", price: 10 },
+    { id: "2", name: "Burger", price: 8 },
+    { id: "3", name: "Pasta", price: 12 },
+    { id: "4", name: "Salad", price: 7 },
+    { id: "5", name: "Soda", price: 2 },
+    { id: "6", name: "Water", price: 1 },
+    { id: "7", name: "Ice Cream", price: 5 },
+    { id: "8", name: "Cake", price: 4 },
+    { id: "9", name: "Fries", price: 3 },
+    { id: "10", name: "Wings", price: 9 },
+    { id: "11", name: "Steak", price: 15 },
+    { id: "12", name: "Tacos", price: 6 },
+    { id: "13", name: "Sandwich", price: 8 },
+    { id: "14", name: "Soup", price: 5 },
+    { id: "15", name: "Breadsticks", price: 4 },
+    { id: "16", name: "Nachos", price: 7 },
+    { id: "17", name: "Brownie", price: 3 },
+    { id: "18", name: "Pudding", price: 2 },
+    { id: "19", name: "Muffin", price: 3 },
+    { id: "20", name: "Cupcake", price: 4 },
+    { id: "21", name: "Pie", price: 5 },
+    { id: "22", name: "Donut", price: 2 },
+    { id: "23", name: "Bagel", price: 3 },
+    { id: "24", name: "Croissant", price: 4 },
+    { id: "25", name: "Tart", price: 5 },
+    { id: "26", name: "Pancakes", price: 6 },
+    { id: "27", name: "Waffles", price: 7 },
+    { id: "28", name: "French Toast", price: 8 },
+    { id: "29", name: "Omelette", price: 9 },
+    { id: "30", name: "Quiche", price: 10 },
+    { id: "31", name: "Frittata", price: 11 },
+    { id: "32", name: "Crepes", price: 12 },
+    { id: "33", name: "Scone", price: 3 },
+    { id: "34", name: "Mousse", price: 4 },
+    { id: "35", name: "Cheesecake", price: 5 }
   ];
 
   const isDesktop = new MediaQuery("(min-width: 768px)");
@@ -55,6 +65,17 @@
     const start = (page - 1) * perPage;
     const end = start + perPage;
     return menuItems.slice(start, end);
+  };
+
+  const addToCart = (item: MenuItem) => {
+    if (!data.cart[item.id]) {
+      data.cart[item.id] = {
+        item,
+        quantity: 1
+      };
+    } else {
+      data.cart[item.id]!.quantity += 1;
+    }
   };
 </script>
 
@@ -83,7 +104,7 @@
                     <Card.Description>${item.price}</Card.Description>
                   </div>
                   <Tooltip.Trigger>
-                    <Button size="icon" class="size-12">
+                    <Button size="icon" class="size-12" onclick={() => addToCart(item)}>
                       <span class="sr-only">Add to cart</span>
                       <ShoppingCart />
                     </Button>
