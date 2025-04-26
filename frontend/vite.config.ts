@@ -1,24 +1,8 @@
 import { svelteTesting } from "@testing-library/svelte/vite";
 import { sveltekit } from "@sveltejs/kit/vite";
-import { defineConfig, type UserConfig } from "vite";
+import { defineConfig } from "vite";
 
-export default defineConfig(({ mode }) => {
-  let additionalConfig: UserConfig = {};
-
-  if (mode === "development") {
-    additionalConfig = {
-      server: {
-        proxy: {
-          "/api": {
-            target: "http://localhost:8080",
-            changeOrigin: true,
-            rewrite: (path) => path.replace(/^\/api/, "")
-          }
-        }
-      }
-    };
-  }
-
+export default defineConfig(() => {
   return {
     plugins: [sveltekit()],
     test: {
@@ -45,7 +29,6 @@ export default defineConfig(({ mode }) => {
           }
         }
       ]
-    },
-    ...additionalConfig
+    }
   };
 });

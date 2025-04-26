@@ -18,8 +18,6 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.user = response.authenticated ? response.user! : null;
   }
 
-  console.log("event.locals.user", event.locals.user);
-
   if (event.locals.user == null) {
     // Only allow login page for unauthenticated users
 

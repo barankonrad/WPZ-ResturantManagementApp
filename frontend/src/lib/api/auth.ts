@@ -70,10 +70,10 @@ export const login = async (loginRequest: LoginRequest, customFetch = fetch) => 
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ username: parsed.email, password: parsed.password })
+      credentials: "include",
+      body: JSON.stringify(parsed)
     });
   } catch (error) {
-    console.error(error);
     return { authenticated: false, error };
   }
 

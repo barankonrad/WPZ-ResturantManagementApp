@@ -22,7 +22,16 @@
       if (authenticated) {
         goto("/menu");
       } else {
-        setError(form, (error as any).message);
+        switch (typeof error) {
+          case "string":
+            setError(form, error);
+            break;
+          case "object":
+            setError(form, (error as any)?.message ?? "Authentication failed");
+            break;
+          default:
+            setError(form, JSON.stringify(error));
+        }
       }
     }
   });
