@@ -1,15 +1,18 @@
 <script lang="ts">
   import "../app.css";
   import { ModeWatcher } from "mode-watcher";
+  import { setContext } from "svelte";
 
   import Navbar from "$lib/components/navbar/navbar.svelte";
   import Cart from "$lib/components/cart.svelte";
-  import type { LayoutProps } from "./$types";
 
+  import type { LayoutProps } from "./$types";
   let { data, children }: LayoutProps = $props();
 
   let isCartOpen = $state(false);
   let cart = $state(data.cart);
+
+  setContext("cart", () => cart);
 </script>
 
 <ModeWatcher />

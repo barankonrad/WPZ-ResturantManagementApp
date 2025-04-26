@@ -1,23 +1,22 @@
 <script lang="ts">
+  import { getContext } from "svelte";
   import { MediaQuery } from "svelte/reactivity";
   import * as Pagination from "$lib/components/ui/pagination";
   import * as Card from "$lib/components/ui/card";
   import * as Tooltip from "$lib/components/ui/tooltip";
   import { Button } from "$lib/components/ui/button";
+  import { Input } from "$lib/components/ui/input";
   import { AspectRatio } from "$lib/components/ui/aspect-ratio";
+  import { Slider } from "$lib/components/ui/slider";
   import { ShoppingCart } from "@lucide/svelte";
   import type { MenuItem } from "$lib/types/menu";
   import type { Cart } from "$lib/types/cart";
+  import { cn } from "$lib/utils";
 
-  interface Props {
-    data: {
-      cart: Cart;
-    };
-  }
+  const getCart: () => Cart = getContext("cart");
+  const cart = $derived(getCart());
 
-  let { data }: Props = $props();
-
-  let menuItems: MenuItem[] = [
+  let menuItems: MenuItem[] = $state([
     { id: "1", name: "Pizza", price: 10 },
     { id: "2", name: "Burger", price: 8 },
     { id: "3", name: "Pasta", price: 12 },
@@ -53,38 +52,84 @@
     { id: "33", name: "Scone", price: 3 },
     { id: "34", name: "Mousse", price: 4 },
     { id: "35", name: "Cheesecake", price: 5 }
-  ];
+  ]);
+  const maxPrice = Math.max(...menuItems.map((item) => item.price));
 
-  const isDesktop = new MediaQuery("(min-width: 768px)");
+  let itemAddedToCart = $state("");
+  let searchQuery = $state("");
+  let priceRange = $state([0, maxPrice]);
 
-  const count = $state(menuItems.length);
-  const perPage = $state(isDesktop.current ? 21 : 8);
+  const filterMenuItems = () => {
+    let filteredItems = menuItems;
+
+    if (searchQuery) {
+      filteredItems = menuItems.filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (priceRange) {
+      filteredItems = filteredItems.filter(
+        (item) => item.price >= priceRange[0]! && item.price <= priceRange[1]!
+      );
+    }
+
+    return filteredItems;
+  };
 
   // Simulate fetching data with pagination
   const fetchMenuItems = (page: number, perPage: number) => {
     const start = (page - 1) * perPage;
     const end = start + perPage;
-    return menuItems.slice(start, end);
+
+    const filteredItems = filterMenuItems();
+
+    return filteredItems.slice(start, end);
   };
 
   const addToCart = (item: MenuItem) => {
-    if (!data.cart[item.id]) {
-      data.cart[item.id] = {
+    if (!cart[item.id]) {
+      cart[item.id] = {
         item,
         quantity: 1
       };
     } else {
-      data.cart[item.id]!.quantity += 1;
+      cart[item.id]!.quantity += 1;
     }
+
+    itemAddedToCart = item.name;
+    setTimeout(() => {
+      itemAddedToCart = "";
+    }, 50);
   };
+
+  const count = $derived(filterMenuItems().length);
+  const perPage = $state(8);
 </script>
 
 <Tooltip.Provider>
-  <Pagination.Root {count} {perPage} class="flex flex-grow flex-col justify-between">
+  <Pagination.Root {count} {perPage} class="flex max-w-[75%] flex-grow flex-col justify-between">
     {#snippet children({ pages, currentPage })}
-      <div class="flex max-w-[75%] flex-row flex-wrap justify-start gap-4 p-4">
-        {#each fetchMenuItems(currentPage, perPage) as item (item.name)}
-          <Card.Root class="w-[256px]">
+      {@const filteredItems = fetchMenuItems(currentPage, perPage)}
+
+      <div class="flex w-full flex-row justify-between gap-4 px-4 pt-4">
+        <Input type="search" class="w-96" placeholder="Search query" bind:value={searchQuery} />
+
+        <div class="flex w-[20%] flex-row items-center gap-2">
+          <p>${priceRange[0]!}</p>
+          <Slider type="multiple" bind:value={priceRange} max={maxPrice} step={1} />
+          <p>${priceRange[1]!}</p>
+        </div>
+      </div>
+
+      <div class="flex flex-row flex-wrap justify-start gap-4 p-4">
+        {#if filteredItems.length === 0}
+          <div class="flex w-full items-center justify-center">
+            <p class="text-muted-foreground">No items found</p>
+          </div>
+        {/if}
+        {#each filteredItems as item (item.name)}
+          <Card.Root class={cn("w-[256px]", itemAddedToCart === item.name ? "scale-105" : "")}>
             <Card.Content>
               <div class="flex w-full flex-col">
                 <AspectRatio ratio={1 / 1} class="rounded-md bg-muted">
