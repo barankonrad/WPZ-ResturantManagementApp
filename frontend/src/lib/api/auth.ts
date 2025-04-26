@@ -32,7 +32,7 @@ export const logout = async (customFetch = fetch) => {
 
   try {
     response = await customFetch(`${baseURL}/logout`, {
-      method: "GET",
+      method: "POST",
       credentials: "include"
     });
   } catch (error) {
