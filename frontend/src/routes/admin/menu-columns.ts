@@ -5,6 +5,7 @@ import MenuTableIdActions from "./_components/menu-table-id-actions.svelte";
 import MenuTableActions from "./_components/menu-table-actions.svelte";
 import MenuTableNameActions from "./_components/menu-table-name-actions.svelte";
 import MenuTablePriceActions from "./_components/menu-table-price-actions.svelte";
+import MenuTableImageActions from "./_components/menu-table-image-actions.svelte";
 import { Checkbox } from "$lib/components/ui/checkbox";
 import type { MenuItem } from "$lib/types/menu";
 
@@ -51,6 +52,16 @@ export const columns: ColumnDef<MenuItem>[] = [
       return renderComponent(MenuTablePriceActions, {
         id: row.original.id,
         price: row.original.price
+      });
+    }
+  },
+  {
+    accessorKey: "image",
+    header: "Image",
+    cell: ({ row }) => {
+      return renderComponent(MenuTableImageActions, {
+        id: row.original.id,
+        imageUrl: row.original.imageUrl
       });
     }
   },

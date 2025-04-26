@@ -3,7 +3,12 @@
   import { Input } from "$lib/components/ui/input";
   import { DollarSign } from "@lucide/svelte";
 
-  let { id, price }: { id: MenuItem["id"]; price: MenuItem["price"] } = $props();
+  interface Props {
+    id: MenuItem["id"];
+    price: MenuItem["price"];
+  }
+
+  let { id, price }: Props = $props();
 </script>
 
 <div class="flex w-[200px] items-center gap-2">

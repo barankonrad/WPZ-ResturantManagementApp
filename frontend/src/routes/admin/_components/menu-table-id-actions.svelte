@@ -2,7 +2,11 @@
   import * as Tooltip from "$lib/components/ui/tooltip";
   import type { MenuItem } from "$lib/types/menu";
 
-  let { id }: { id: MenuItem["id"] } = $props();
+  interface Props {
+    id: MenuItem["id"];
+  }
+
+  let { id }: Props = $props();
 </script>
 
 <Tooltip.Provider>

@@ -10,6 +10,16 @@
   import type { User } from "$lib/types/user";
   import type { MenuItem } from "$lib/types/menu";
 
+  interface Props {
+    data: {
+      menu: MenuItem[];
+    };
+  }
+
+  let { data }: Props = $props();
+
+  let menuItems: MenuItem[] = $state(data.menu);
+
   let users: User[] = [
     {
       id: 1,
@@ -74,15 +84,6 @@
   ];
 
   let orders = [];
-
-  let menuItems = $state<MenuItem[]>([
-    { id: 1, name: "Pizza", price: 10 },
-    { id: 2, name: "Burger", price: 8 },
-    { id: 3, name: "Pasta", price: 12 },
-    { id: 4, name: "Salad", price: 7 },
-    { id: 5, name: "Soda", price: 2 },
-    { id: 6, name: "Water", price: 1 }
-  ]);
 </script>
 
 <Tabs.Root value="users">
@@ -166,7 +167,7 @@
           <Card.Description>Add, edit and remove menu items</Card.Description>
         </Card.Header>
         <Card.Content>
-          <MenuTable data={menuItems} columns={menuColumns} />
+          <MenuTable bind:data={menuItems} columns={menuColumns} />
         </Card.Content>
       </Card.Root>
     </Tabs.Content>

@@ -6,24 +6,35 @@
   import { AspectRatio } from "$lib/components/ui/aspect-ratio";
   import { Upload } from "@lucide/svelte";
 
-  let { isOpen, setOpen, addData } = $props();
+  interface Props {
+    open: boolean;
+    addData: (name: string, price: number, imageUrl: string) => void;
+  }
+
+  let { open = $bindable(), addData }: Props = $props();
 
   let files: FileList | undefined = $state();
   let name: string = $state("");
   let price: number = $state(0);
+  let imageUrl: string = $derived.by(() => {
+    if (files && files.length > 0) {
+      return URL.createObjectURL(files[0] as File);
+    }
+    return "";
+  });
 
   const handleAdd = () => {
-    console.log("New menu item added");
-    addData(name, price);
+    addData(name, price, imageUrl);
 
-    setOpen(false);
     name = "";
     price = 0;
     files = undefined;
+
+    open = false;
   };
 </script>
 
-<Dialog.Root bind:open={isOpen} bind:onOpenChange={setOpen}>
+<Dialog.Root bind:open>
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>New menu item</Dialog.Title>
@@ -42,7 +53,7 @@
           {/if}
           <div class="absolute flex h-full w-full">
             <Input
-              class="h-full opacity-0"
+              class="z-10 h-full opacity-0"
               type="file"
               accept="image/*"
               bind:files

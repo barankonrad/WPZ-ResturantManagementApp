@@ -5,7 +5,11 @@
   import { CircleMinus, Clipboard } from "@lucide/svelte";
   import type { MenuItem } from "$lib/types/menu";
 
-  let { id }: { id: MenuItem["id"] } = $props();
+  interface Props {
+    id: MenuItem["id"];
+  }
+
+  let { id }: Props = $props();
 
   const removeMenuItem = () => {
     // TODO: Implement the logic to remove menu item

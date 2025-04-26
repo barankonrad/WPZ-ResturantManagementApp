@@ -3,7 +3,12 @@
   import { Input } from "$lib/components/ui/input";
   import { Tag } from "@lucide/svelte";
 
-  let { id, name }: { id: MenuItem["id"]; name: MenuItem["name"] } = $props();
+  interface Props {
+    id: MenuItem["id"];
+    name: MenuItem["name"];
+  }
+
+  let { id, name }: Props = $props();
 </script>
 
 <div class="flex w-[200px] items-center gap-2">

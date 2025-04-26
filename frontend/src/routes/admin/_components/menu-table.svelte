@@ -23,13 +23,13 @@
     data: TData[];
   };
 
-  let { data, columns }: DataTableProps<TData, TValue> = $props();
+  let { data = $bindable(), columns }: DataTableProps<TData, TValue> = $props();
 
-  let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 6 });
   let columnFilters = $state<ColumnFiltersState>([]);
   let columnVisibility = $state<VisibilityState>({});
   let rowSelection = $state<RowSelectionState>({});
-  let isDialogOpen = $state(false);
+  let dialogOpen = $state(false);
 
   const table = createSvelteTable({
     get data() {
@@ -83,11 +83,12 @@
     }
   });
 
-  const addMenuItem = (name: string, price: number) => {
+  const addMenuItem = (name: string, price: number, imageUrl: string) => {
     const newItem: MenuItem = {
       id: data.length + 1,
       name,
-      price
+      price,
+      imageUrl
     };
 
     data = [...data, newItem];
@@ -125,7 +126,7 @@
           {/each}
         </DropdownMenu.Content>
       </DropdownMenu.Root>
-      <Button variant="outline" size="icon" onclick={() => (isDialogOpen = true)}>
+      <Button variant="outline" size="icon" onclick={() => (dialogOpen = true)}>
         <CirclePlus class="h-4 w-4" />
       </Button>
     </div>
@@ -193,5 +194,5 @@
     </div>
   </div>
 
-  <MenuAddDialog isOpen={isDialogOpen} setOpen={(v) => (isDialogOpen = v)} addData={addMenuItem} />
+  <MenuAddDialog bind:open={dialogOpen} addData={addMenuItem} />
 </div>
