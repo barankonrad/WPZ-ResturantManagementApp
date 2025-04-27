@@ -1,4 +1,4 @@
-package org.example.restaurantmanagementapplication;
+package org.example.restaurantmanagementapplication.rest;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -10,7 +10,6 @@ import java.util.List;
 import org.example.restaurantmanagementapplication.entity.Role;
 import org.example.restaurantmanagementapplication.entity.User;
 import org.example.restaurantmanagementapplication.model.in.RegisterRequest;
-import org.example.restaurantmanagementapplication.rest.UserRestController;
 import org.example.restaurantmanagementapplication.service.RoleService;
 import org.example.restaurantmanagementapplication.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
