@@ -6,6 +6,8 @@ import org.example.restaurantmanagementapplication.common.JSONErrorResponse;
 import org.example.restaurantmanagementapplication.common.PropertyUtils;
 import org.example.restaurantmanagementapplication.entity.Role;
 import org.example.restaurantmanagementapplication.entity.User;
+import org.example.restaurantmanagementapplication.model.in.RegisterRequest;
+import org.example.restaurantmanagementapplication.model.out.UserOut;
 import org.example.restaurantmanagementapplication.service.RoleService;
 import org.example.restaurantmanagementapplication.service.UserService;
 import org.springframework.beans.BeanUtils;
@@ -38,20 +40,22 @@ public class UserRestController {
   }
 
   @PostMapping("/users")
-  public ResponseEntity<?> createUser(@Valid @RequestBody User user) {
-    Role role = roleService.findById(user.getRole().getId());
-
-    if (PropertyUtils.countNullProperties(user) > 0) {
+  public ResponseEntity<?> createUser(@RequestBody RegisterRequest registerRequest) {
+    if (PropertyUtils.countNullProperties(registerRequest) > 0) {
       return ResponseEntity.badRequest().body(new JSONErrorResponse("All fields are required"));
     }
 
+    Role role = roleService.findByName(registerRequest.getRole());
     if (role == null) {
       return ResponseEntity.badRequest()
-          .body(new JSONErrorResponse("Could not find role " + user.getRole().getId()));
+          .body(new JSONErrorResponse("Could not find role " + registerRequest.getRole()));
     }
+    User user = new User();
+    user.setEmail(registerRequest.getEmail());
+    user.setPassword(registerRequest.getPassword());
     user.setRole(role);
     user = userService.save(user);
-    return ResponseEntity.ok(user);
+    return ResponseEntity.ok(UserOut.fromEntity(user));
   }
 
   @PutMapping("/users")
