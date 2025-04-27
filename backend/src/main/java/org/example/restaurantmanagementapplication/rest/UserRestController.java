@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserRestController {
   private final UserService userService;
   private final RoleService roleService;
+  static final String ROLE_NOT_FOUND = "Could not find role ";
 
   public UserRestController(UserService userService, RoleService roleService) {
     this.userService = userService;
@@ -47,7 +48,7 @@ public class UserRestController {
 
     if (role == null) {
       return ResponseEntity.badRequest()
-          .body(new JSONErrorResponse("Could not find role " + user.getRole().getId()));
+          .body(new JSONErrorResponse(ROLE_NOT_FOUND + user.getRole().getId()));
     }
     user.setRole(role);
     user = userService.save(user);
@@ -67,7 +68,7 @@ public class UserRestController {
     Role role = roleService.findById(user.getRole().getId());
     if (role == null) {
       return ResponseEntity.badRequest()
-          .body(new JSONErrorResponse("Could not find role " + user.getRole().getId()));
+          .body(new JSONErrorResponse(ROLE_NOT_FOUND + user.getRole().getId()));
     } else {
       user.setRole(role);
     }
@@ -87,7 +88,7 @@ public class UserRestController {
       Role role = roleService.findById(newUser.getRole().getId());
       if (role == null) {
         return ResponseEntity.badRequest()
-            .body(new JSONErrorResponse("Could not find role " + newUser.getRole().getId()));
+            .body(new JSONErrorResponse(ROLE_NOT_FOUND + newUser.getRole().getId()));
       } else {
         user.setRole(role);
       }

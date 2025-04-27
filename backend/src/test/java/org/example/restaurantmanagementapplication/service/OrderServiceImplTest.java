@@ -1,8 +1,6 @@
 package org.example.restaurantmanagementapplication.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -99,5 +97,52 @@ class OrderServiceImplTest {
     assertEquals("Menu item not found: 999", ex.getMessage());
     verify(menuItemRepository).findById(999L);
     verify(orderRepository, never()).save(any());
+  }
+
+  @Test
+  void findById_shouldReturnOrder_whenOrderExists() {
+    // given
+    var order = new Order();
+    order.setId(1L);
+
+    when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+
+    // when
+    var result = orderService.findById(1);
+
+    // then
+    assertNotNull(result);
+    assertEquals(1L, result.getId());
+    verify(orderRepository).findById(1);
+  }
+
+  @Test
+  void findById_shouldReturnNull_whenOrderDoesNotExist() {
+    // given
+    when(orderRepository.findById(1)).thenReturn(Optional.empty());
+
+    // when
+    var result = orderService.findById(1);
+
+    // then
+    assertNull(result);
+    verify(orderRepository).findById(1);
+  }
+
+  @Test
+  void save_shouldPersistOrder() {
+    // given
+    var order = new Order();
+    order.setId(1L);
+
+    when(orderRepository.save(order)).thenReturn(order);
+
+    // when
+    var result = orderService.save(order);
+
+    // then
+    assertNotNull(result);
+    assertEquals(1L, result.getId());
+    verify(orderRepository).save(order);
   }
 }

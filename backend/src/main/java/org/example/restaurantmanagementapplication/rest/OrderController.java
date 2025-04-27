@@ -1,18 +1,18 @@
 package org.example.restaurantmanagementapplication.rest;
 
-
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.common.SessionManager;
 import org.example.restaurantmanagementapplication.entity.Order;
 import org.example.restaurantmanagementapplication.entity.User;
+import org.example.restaurantmanagementapplication.model.OrderStatus;
+import org.example.restaurantmanagementapplication.model.OrderStatusTransition;
 import org.example.restaurantmanagementapplication.model.in.OrderItemRequest;
 import org.example.restaurantmanagementapplication.model.in.OrderRequest;
 import org.example.restaurantmanagementapplication.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
@@ -39,6 +39,24 @@ public class OrderController {
     orderRequest.setOrderedItems(items);
     orderRequest.setCreatedBy(createdBy);
     Order order = orderService.createOrder(orderRequest);
+    return ResponseEntity.ok(order);
+  }
+
+  @PostMapping("{id}/cancel")
+  public ResponseEntity<Order> cancelOrder(@PathVariable int id) {
+    Optional<User> currentUser = sessionManager.getCurrentUser();
+
+    var updatedBy = currentUser.isPresent() ? currentUser.get().getEmail() : "anonymous";
+
+    Order order = orderService.findById(id);
+    if (order == null) {
+      return ResponseEntity.notFound().build();
+    } else if (!OrderStatusTransition.isCancellable(order.getStatus())) {
+      return ResponseEntity.badRequest().body(order);
+    }
+    order.setStatus(OrderStatus.CANCELLED);
+    order.setUpdatedBy(updatedBy);
+    orderService.save(order);
     return ResponseEntity.ok(order);
   }
 }

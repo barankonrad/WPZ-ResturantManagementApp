@@ -12,7 +12,6 @@ import org.example.restaurantmanagementapplication.repository.MenuItemRepository
 import org.example.restaurantmanagementapplication.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 
-
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -50,6 +49,16 @@ public class OrderServiceImpl implements OrderService {
 
     order.setItems(orderItems);
 
+    return orderRepository.save(order);
+  }
+
+  @Override
+  public Order findById(int id) {
+    return orderRepository.findById(id).orElse(null);
+  }
+
+  @Override
+  public Order save(Order order) {
     return orderRepository.save(order);
   }
 }
