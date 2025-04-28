@@ -46,7 +46,9 @@ public class OrderController {
   public ResponseEntity<Order> cancelOrder(@PathVariable int id) {
     Optional<User> currentUser = sessionManager.getCurrentUser();
 
-    var updatedBy = currentUser.isPresent() ? currentUser.get().getEmail() : "anonymous";
+    var updatedBy = currentUser.isPresent()
+        ? currentUser.get().getEmail()
+        : "anonymous";
 
     Order order = orderService.findById(id);
     if (order == null) {

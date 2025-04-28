@@ -61,6 +61,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/", "/login", "/me").permitAll()
             .requestMatchers("/admin").hasRole("ADMIN")
+            .requestMatchers("/orders/*/cancel").hasAnyRole("ADMIN", "WAITER")
             .anyRequest().authenticated()
         ).sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)

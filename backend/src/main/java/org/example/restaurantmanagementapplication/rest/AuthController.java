@@ -2,6 +2,7 @@ package org.example.restaurantmanagementapplication.rest;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.example.restaurantmanagementapplication.entity.User;
 import org.example.restaurantmanagementapplication.model.in.LoginRequest;
 import org.example.restaurantmanagementapplication.model.out.UserOut;
 import org.example.restaurantmanagementapplication.service.UserService;

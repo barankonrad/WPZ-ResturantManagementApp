@@ -1,14 +1,13 @@
 package org.example.restaurantmanagementapplication.rest;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import org.example.restaurantmanagementapplication.common.PropertyUtils;
 import org.example.restaurantmanagementapplication.entity.Role;
 import org.example.restaurantmanagementapplication.service.RoleService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 public class RoleRestController {
@@ -62,7 +61,7 @@ public class RoleRestController {
 	}
 
 	@DeleteMapping("/roles/{id}")
-	public ResponseEntity<?> deleteRole(@PathVariable int id) {
+	public ResponseEntity<Void> deleteRole(@PathVariable int id) {
 		Role role = roleService.findById(id);
 		if (role != null) {
 			roleService.deleteById(id);
