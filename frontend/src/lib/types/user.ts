@@ -8,14 +8,14 @@ export const roles = {
 
 export const stripRolePrefix = (s: Role) => s.split("_").at(-1);
 
-export const roleSchema = v.pipe(v.string(), v.enum(roles, "Invalid role"));
+export const RoleSchema = v.pipe(v.string(), v.enum(roles, "Invalid role"));
 
-export type Role = v.InferOutput<typeof roleSchema>;
+export type Role = v.InferOutput<typeof RoleSchema>;
 
-export const userSchema = v.strictObject({
+export const UserSchema = v.strictObject({
   id: v.pipe(v.number(), v.integer()),
   email: v.pipe(v.string(), v.email()),
-  role: roleSchema
+  role: RoleSchema
 });
 
-export type User = v.InferOutput<typeof userSchema>;
+export type User = v.InferOutput<typeof UserSchema>;
