@@ -35,6 +35,9 @@ class OrderServiceImplTest {
   private MenuItemRepository menuItemRepository;
 
   @InjectMocks
+  /*
+  TODO: please use interface as reference
+   */
   private OrderServiceImpl orderService;
 
   private MenuItem menuItem;
@@ -58,6 +61,11 @@ class OrderServiceImplTest {
     request.setOrderedItems(List.of(itemRequest));
 
     when(menuItemRepository.findById(1L)).thenReturn(Optional.of(menuItem));
+    /*
+    TODO: a better approach would be either:
+    - switch this to integration test. this module is at the moment simple, with no complex business logic, so integration testing is fine
+    - provide fake InMemory repository - this will allow more flexible testing then hard-coding in Mockito, while having light-weight of unit testing
+     */
     when(orderRepository.save(any(Order.class))).thenAnswer(
         invocation -> invocation.getArgument(0));
 
@@ -70,11 +78,18 @@ class OrderServiceImplTest {
     assertEquals(OrderStatus.NEW, result.getStatus());
     assertEquals(1, result.getItems().size());
 
+    /*
+    TODO: actually saved item should be retrieved from DB, directly from repo or indirectly via facade
+         this is just a value returned from service
+     */
     var savedItem = result.getItems().getFirst();
     assertEquals(menuItem, savedItem.getMenuItem());
     assertEquals(2, savedItem.getQuantity());
     assertEquals(BigDecimal.valueOf(10.50), savedItem.getPrice());
 
+    /*
+    TODO: such assertion provides very little value while keeping a very strong coupling between test and production code
+     */
     verify(orderRepository).save(any(Order.class));
     verify(menuItemRepository).findById(1L);
   }

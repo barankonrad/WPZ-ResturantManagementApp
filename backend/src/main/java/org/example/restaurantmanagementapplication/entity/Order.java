@@ -12,6 +12,7 @@ import org.example.restaurantmanagementapplication.model.OrderStatus;
 @Table(name = "orders")
 @Getter
 @Setter
+// TODO: please be careful with toString, when there is one-to-many with lazy fetch mode - it can end up with LazyInitializationException
 @ToString
 @NoArgsConstructor
 public class Order {

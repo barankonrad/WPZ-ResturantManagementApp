@@ -10,7 +10,9 @@ import org.example.restaurantmanagementapplication.repository.RoleRepository;
 import org.example.restaurantmanagementapplication.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+/*
+TODO: what is the purpose of single implementation of interface?
+ */
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
