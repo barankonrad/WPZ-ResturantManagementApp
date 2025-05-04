@@ -12,7 +12,9 @@ import org.example.restaurantmanagementapplication.repository.MenuItemRepository
 import org.example.restaurantmanagementapplication.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 
-
+/*
+TODO: single interface implementation
+ */
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -28,6 +30,9 @@ public class OrderServiceImpl implements OrderService {
   @Transactional
   public Order createOrder(OrderRequest request) {
     var order = new Order();
+    /*
+    TODO: please try to encapsulate it in a factory method in Order class
+     */
     order.setCreatedBy(request.getCreatedBy());
     order.setUpdatedBy(request.getCreatedBy());
     order.setStatus(OrderStatus.NEW);
@@ -40,7 +45,10 @@ public class OrderServiceImpl implements OrderService {
               "Menu item not found: " + orderItemRequest.getMenuItemId()));
 
       var orderItem = new OrderItem();
-      orderItem.setOrder(order);
+      orderItem.setOrder(order); // TODO: bidirectional relationship that can be avoided
+      /*
+      TODO: lines below can be replace with OrderItem constructor or static factory method
+       */
       orderItem.setMenuItem(menuItem);
       orderItem.setQuantity(orderItemRequest.getQuantity());
       orderItem.setPrice(menuItem.getPrice());

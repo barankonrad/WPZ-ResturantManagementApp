@@ -19,6 +19,9 @@ public class OrderItem {
   @Column(name = "id")
   private Long id;
 
+  /*
+  TODO: we might not really need this
+   */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "order_id", nullable = false)
   @JsonBackReference

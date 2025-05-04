@@ -22,6 +22,9 @@ public class OrderController {
   private final OrderService orderService;
   private final SessionManager sessionManager;
 
+  /*
+  TODO: the DB entity nor domain model should be returned to view
+   */
   @GetMapping
   public ResponseEntity<List<Order>> retrieveAllOrders() {
     return ResponseEntity.ok(orderService.findAll());
@@ -36,6 +39,9 @@ public class OrderController {
         : "anonymous";
 
     var orderRequest = new OrderRequest();
+    /*
+    TODO: why not to create OrderRequest in one factory method or even create order directly
+     */
     orderRequest.setOrderedItems(items);
     orderRequest.setCreatedBy(createdBy);
     Order order = orderService.createOrder(orderRequest);

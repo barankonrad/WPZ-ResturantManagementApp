@@ -13,6 +13,7 @@ import java.util.Optional;
 public class RoleServiceImpl implements RoleService {
 	private final RoleRepository roleRepository;
 
+	// TODO: not needed annotation
 	@Autowired
 	public RoleServiceImpl(RoleRepository roleRepository) {
 		this.roleRepository = roleRepository;
