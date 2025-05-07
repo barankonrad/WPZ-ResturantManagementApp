@@ -1,6 +1,5 @@
 package org.example.restaurantmanagementapplication.rest;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -20,7 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @ExtendWith(MockitoExtension.class)
-public class RoleRestControllerTest {
+class RoleRestControllerTest {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private MockMvc mockMvc;

@@ -10,4 +10,7 @@ public interface OrderService {
 
   Order createOrder(OrderRequest orderRequest);
 
+  Order findById(int id);
+
+  Order save(Order order);
 }
