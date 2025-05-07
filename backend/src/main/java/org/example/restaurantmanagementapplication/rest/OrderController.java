@@ -53,7 +53,8 @@ public class OrderController {
     Order order = orderService.findById(id);
     if (order == null) {
       return ResponseEntity.notFound().build();
-    } else if (!OrderStatusTransition.isCancellable(order.getStatus())) {
+    }
+    if (!OrderStatusTransition.isCancellable(order.getStatus())) {
       return ResponseEntity.badRequest().body(order);
     }
     order.setStatus(OrderStatus.CANCELLED);
