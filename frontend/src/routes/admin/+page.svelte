@@ -9,14 +9,9 @@
   import MenuTable from "./_components/menu-table.svelte";
   import type { User } from "$lib/types/user";
   import type { MenuItem } from "$lib/types/menu";
+  import type { PageProps } from "./$types";
 
-  interface Props {
-    data: {
-      menu: MenuItem[];
-    };
-  }
-
-  let { data }: Props = $props();
+  let { data }: PageProps = $props();
 
   let menuItems: MenuItem[] = $state(data.menu);
 
