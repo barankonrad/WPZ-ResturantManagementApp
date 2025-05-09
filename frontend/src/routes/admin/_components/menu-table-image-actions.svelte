@@ -8,7 +8,7 @@
     imageUrl: MenuItem["imageUrl"];
   }
 
-  let { id, imageUrl }: Props = $props();
+  let { imageUrl }: Props = $props();
 
   let files: FileList | undefined = $state();
 

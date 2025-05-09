@@ -8,7 +8,7 @@
     price: MenuItem["price"];
   }
 
-  let { id, price }: Props = $props();
+  let { price }: Props = $props();
 </script>
 
 <div class="flex w-[200px] items-center gap-2">
