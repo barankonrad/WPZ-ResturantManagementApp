@@ -2,10 +2,18 @@
   import * as Card from "$lib/components/ui/card";
   import * as Tabs from "$lib/components/ui/tabs";
   import { columns as userColumns } from "./user-columns";
+  import { columns as menuColumns } from "./menu-columns";
 
   import { CookingPot, ShoppingCart, Users } from "@lucide/svelte";
   import UserTable from "./_components/user-table.svelte";
+  import MenuTable from "./_components/menu-table.svelte";
   import type { User } from "$lib/types/user";
+  import type { MenuItem } from "$lib/types/menu";
+  import type { PageProps } from "./$types";
+
+  let { data }: PageProps = $props();
+
+  let menuItems: MenuItem[] = $state(data.menu);
 
   let users: User[] = [
     {
@@ -71,14 +79,6 @@
   ];
 
   let orders = [];
-  let menuItems = [
-    { name: "Pizza", price: 10 },
-    { name: "Burger", price: 8 },
-    { name: "Pasta", price: 12 },
-    { name: "Salad", price: 7 },
-    { name: "Soda", price: 2 },
-    { name: "Water", price: 1 }
-  ];
 </script>
 
 <Tabs.Root value="users">
@@ -162,10 +162,7 @@
           <Card.Description>Add, edit and remove menu items</Card.Description>
         </Card.Header>
         <Card.Content>
-          <!-- TODO: Impement menu data table -->
-          <p class="text-sm text-muted-foreground">
-            This feature is not implemented yet. Please check back later.
-          </p>
+          <MenuTable bind:data={menuItems} columns={menuColumns} />
         </Card.Content>
       </Card.Root>
     </Tabs.Content>
