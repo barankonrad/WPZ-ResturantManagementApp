@@ -6,29 +6,22 @@
   import { AspectRatio } from "$lib/components/ui/aspect-ratio";
   import { ScrollArea } from "$lib/components/ui/scroll-area";
   import { Eraser, ShoppingBasket, Trash } from "@lucide/svelte";
-  import type { Cart } from "$lib/types/cart";
+  import type { CartState } from "./cartState.svelte";
 
   interface Props {
-    open: boolean;
-    cart: Cart;
+    cart: CartState;
   }
 
-  let { open = $bindable(), cart = $bindable() }: Props = $props();
-
-  const removeFromCart = (id: string) => {
-    if (cart[id]) {
-      delete cart[id];
-    }
-  };
+  let { cart }: Props = $props();
 
   const proceedToCheckout = () => {
     // Implement checkout logic here
-    console.log("Proceeding to checkout with cart:", cart);
+    console.log("Proceeding to checkout with cart:", cart.entries);
     alert("Functionality not implemented yet.");
   };
 </script>
 
-<Sheet.Root bind:open>
+<Sheet.Root bind:open={cart.isOpen}>
   <Sheet.Content>
     <Sheet.Header>
       <Sheet.Title>Shopping Cart</Sheet.Title>
@@ -36,15 +29,16 @@
 
     <div class="flex h-full flex-col gap-4 p-4">
       <ScrollArea class="w-full flex-grow">
-        {#if Object.keys(cart).length === 0}
+        {#if cart.entries == null || Object.keys(cart.entries).length === 0}
           <p>Your cart is empty. Add some items to your cart to see them here.</p>
         {/if}
-        {#each Object.entries(cart) as [i, cartItem] (i)}
+
+        {#each cart.entries && Object.entries(cart.entries) as [i, cartEntry] (i)}
           <Card.Root class="mb-2 mr-4 flex flex-row gap-2">
             <div class="w-24">
               <AspectRatio ratio={1 / 1} class="rounded-md">
                 <img
-                  src="https://picsum.photos/256/256?{cartItem.item.name}"
+                  src="https://picsum.photos/256/256?{cartEntry.item.name}"
                   alt="Menu Item"
                   class="absolute h-full w-full rounded-md object-cover"
                 />
@@ -53,12 +47,12 @@
 
             <div class="flex flex-grow flex-row gap-2 py-2">
               <div class="flex flex-col">
-                <Card.Title>{cartItem.item.name}</Card.Title>
-                <Card.Description>${cartItem.item.price}</Card.Description>
+                <Card.Title>{cartEntry.item.name}</Card.Title>
+                <Card.Description>${cartEntry.item.price}</Card.Description>
                 <!-- <Card.Description class="mt-auto">Quantity: {cartItem.quantity}</Card.Description> -->
 
                 <Card.Description class="mt-auto"
-                  >Total: ${cartItem.item.price * cartItem.quantity}</Card.Description
+                  >Total: ${cartEntry.item.price * cartEntry.quantity}</Card.Description
                 >
               </div>
               <div class="ml-auto flex flex-col pr-2">
@@ -70,14 +64,14 @@
                   dir="rtl"
                   placeholder="Quantity"
                   class="w-20"
-                  bind:value={cartItem.quantity}
+                  bind:value={cartEntry.quantity}
                 />
 
                 <Button
                   size="icon"
                   variant="ghost"
                   class="mt-auto size-8 self-end"
-                  onclick={() => removeFromCart(i)}
+                  onclick={() => cart.removeItem(cartEntry.item)}
                 >
                   <span class="sr-only">Remove from cart</span>
                   <Trash />
@@ -89,7 +83,7 @@
       </ScrollArea>
 
       <div class="mt-auto flex flex-row justify-between gap-2">
-        <Button variant="destructive" onclick={() => (cart = {})}>
+        <Button variant="destructive" onclick={() => cart.clear()}>
           <Eraser class="mr-2 size-4" />
           Clear
         </Button>

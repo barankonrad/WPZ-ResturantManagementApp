@@ -3,18 +3,17 @@
   import { cn } from "$lib/utils";
 
   import type { User } from "$lib/types/user";
-  import type { Cart } from "$lib/types/cart";
   import NavbarAvatar from "./navbar-avatar.svelte";
   import { Button } from "../ui/button";
   import { ShoppingCart } from "@lucide/svelte";
+  import type { CartState } from "../cart/cartState.svelte";
 
   interface Props {
     user: User | null;
-    cart: Cart;
-    openCart: () => void;
+    cart: CartState;
   }
 
-  let { user, cart, openCart }: Props = $props();
+  let { user, cart }: Props = $props();
 
   const navbarItems = [
     { name: "Menu", path: "/menu" },
@@ -45,16 +44,17 @@
     </div>
 
     <div class="flex items-center">
-      <Button size="icon" variant="ghost" class="relative" onclick={openCart}>
+      <Button size="icon" variant="ghost" class="relative" onclick={() => cart.open()}>
         <span class="sr-only">Shopping Cart</span>
         <ShoppingCart />
-        <span
-          class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs text-white"
-        >
-          {Object.keys(cart).length > 0
-            ? Object.values(cart).reduce((acc, item) => acc + item.quantity, 0)
-            : null}
-        </span>
+
+        {#if cart.itemCount > 0}
+          <span
+            class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs text-white"
+          >
+            {cart.itemCount}
+          </span>
+        {/if}
       </Button>
 
       <NavbarAvatar {user} />
