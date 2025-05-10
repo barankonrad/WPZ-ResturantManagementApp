@@ -89,7 +89,7 @@
 </script>
 
 <Tooltip.Provider>
-  <Pagination.Root {count} {perPage} class="flex max-w-[75%] flex-grow flex-col justify-between">
+  <Pagination.Root {count} {perPage} class="flex max-w-[75%] flex-col justify-between">
     {#snippet children({ pages, currentPage })}
       {@const filteredItems = fetchMenuItems(currentPage, perPage)}
 
@@ -132,7 +132,7 @@
                     <Tooltip.Trigger>
                       <Button
                         size="icon"
-                        class="size-12 transition-all active:scale-110"
+                        class="size-12 transition-transform active:scale-110"
                         onclick={() => cart.addItem(item)}
                       >
                         <span class="sr-only">Add to cart</span>
@@ -148,31 +148,31 @@
             </Card.Root>
           {/each}
         </div>
-      {/if}
 
-      <div class="mt-auto pb-16">
-        <Pagination.Content>
-          <Pagination.Item>
-            <Pagination.PrevButton />
-          </Pagination.Item>
-          {#each pages as page (page.key)}
-            {#if page.type === "ellipsis"}
-              <Pagination.Item>
-                <Pagination.Ellipsis />
-              </Pagination.Item>
-            {:else}
-              <Pagination.Item>
-                <Pagination.Link {page} isActive={currentPage === page.value}>
-                  {page.value}
-                </Pagination.Link>
-              </Pagination.Item>
-            {/if}
-          {/each}
-          <Pagination.Item>
-            <Pagination.NextButton />
-          </Pagination.Item>
-        </Pagination.Content>
-      </div>
+        <div class="pb-16">
+          <Pagination.Content>
+            <Pagination.Item>
+              <Pagination.PrevButton />
+            </Pagination.Item>
+            {#each pages as page (page.key)}
+              {#if page.type === "ellipsis"}
+                <Pagination.Item>
+                  <Pagination.Ellipsis />
+                </Pagination.Item>
+              {:else}
+                <Pagination.Item>
+                  <Pagination.Link {page} isActive={currentPage === page.value}>
+                    {page.value}
+                  </Pagination.Link>
+                </Pagination.Item>
+              {/if}
+            {/each}
+            <Pagination.Item>
+              <Pagination.NextButton />
+            </Pagination.Item>
+          </Pagination.Content>
+        </div>
+      {/if}
     {/snippet}
   </Pagination.Root>
 </Tooltip.Provider>
