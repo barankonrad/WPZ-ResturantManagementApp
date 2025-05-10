@@ -53,6 +53,7 @@
   ]);
   const maxPrice = Math.max(...menuItems.map((item) => item.price));
 
+  let thisPage = $state(1);
   let searchQuery = $state("");
   let priceRange = $state([0, maxPrice]);
 
@@ -80,16 +81,25 @@
     const end = start + perPage;
 
     const filteredItems = filterMenuItems();
-
     return filteredItems.slice(start, end);
   };
+
+  $effect(() => {
+    const filteredItems = filterMenuItems();
+
+    if (filteredItems.length === 0) {
+      thisPage = 1;
+    } else if (thisPage > Math.ceil(filteredItems.length / perPage)) {
+      thisPage = Math.ceil(filteredItems.length / perPage);
+    }
+  });
 
   const count = $derived(filterMenuItems().length);
   const perPage = $state(8);
 </script>
 
 <Tooltip.Provider>
-  <Pagination.Root {count} {perPage} class="flex max-w-[75%] flex-col justify-between">
+  <Pagination.Root {count} {perPage} bind:page={thisPage} class="flex max-w-[75%] flex-col justify-between">
     {#snippet children({ pages, currentPage })}
       {@const filteredItems = fetchMenuItems(currentPage, perPage)}
 
