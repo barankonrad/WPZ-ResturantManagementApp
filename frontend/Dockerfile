@@ -25,4 +25,4 @@ COPY --from=prerelease /usr/src/app/package.json .
 
 USER bun
 EXPOSE 4173/tcp
-ENTRYPOINT [ "bun", "run", "preview" ]
+ENTRYPOINT [ "bun", "run", "preview", "--", "--host", "0.0.0.0" ]
