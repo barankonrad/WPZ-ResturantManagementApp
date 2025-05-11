@@ -1,0 +1,30 @@
+name: Frontend Docker container CICD
+
+on:
+  push:
+    branches: ["main"]
+    paths: ["frontend/**"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: konradbaran
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          platforms: linux/amd64,linux/arm64
+          tags: konradbaran/restaurant-frontend-wpz:latest
+          cache-from: type=registry,ref=konradbaran/restaurant-frontend-wpz:buildcache
+          cache-to: type=registry,ref=konradbaran/restaurant-frontend-wpz:buildcache,mode=max
