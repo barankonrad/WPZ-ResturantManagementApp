@@ -3,6 +3,8 @@ package org.example.restaurantmanagementapplication.rest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.entity.MenuItem;
+import org.example.restaurantmanagementapplication.mapper.MenuItemMapper;
+import org.example.restaurantmanagementapplication.model.MenuItemDTO;
 import org.example.restaurantmanagementapplication.service.MenuItemService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,36 +14,40 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class MenuItemController {
   private final MenuItemService menuItemService;
+  private final MenuItemMapper menuItemMapper;
 
   @GetMapping
-  public ResponseEntity<List<MenuItem>> getAllMenuItems() {
+  public ResponseEntity<List<MenuItemDTO>> getAllMenuItems() {
     List<MenuItem> menuItems = menuItemService.findAll();
-    return ResponseEntity.ok(menuItems);
+    List<MenuItemDTO> menuItemDTOs = menuItems.stream().map(menuItemMapper::toDTO).toList();
+    return ResponseEntity.ok(menuItemDTOs);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<MenuItem> getMenuItemById(@PathVariable Long id) {
+  public ResponseEntity<MenuItemDTO> getMenuItemById(@PathVariable Long id) {
     MenuItem menuItem = menuItemService.findById(id);
     if (menuItem != null) {
-      return ResponseEntity.ok(menuItem);
+      return ResponseEntity.ok(menuItemMapper.toDTO(menuItem));
     } else {
       return ResponseEntity.notFound().build();
     }
   }
 
   @PostMapping
-  public ResponseEntity<MenuItem> createMenuItem(@RequestBody MenuItem menuItem) {
+  public ResponseEntity<MenuItemDTO> createMenuItem(@RequestBody MenuItemDTO menuItemDTO) {
+    MenuItem menuItem = menuItemMapper.toEntity(menuItemDTO);
     MenuItem createdMenuItem = menuItemService.save(menuItem);
-    return ResponseEntity.ok(createdMenuItem);
+    return ResponseEntity.ok(menuItemMapper.toDTO(createdMenuItem));
   }
 
   @PutMapping
-  public ResponseEntity<MenuItem> updateMenuItem(@RequestBody MenuItem menuItem) {
+  public ResponseEntity<MenuItemDTO> updateMenuItem(@RequestBody MenuItemDTO menuItemDTO) {
+    MenuItem menuItem = menuItemMapper.toEntity(menuItemDTO);
     if (menuItemService.findById(menuItem.getId()) == null) {
       return ResponseEntity.notFound().build();
     }
     MenuItem updatedMenuItem = menuItemService.save(menuItem);
-    return ResponseEntity.ok(updatedMenuItem);
+    return ResponseEntity.ok(menuItemMapper.toDTO(updatedMenuItem));
   }
 
   @DeleteMapping("/{id}")

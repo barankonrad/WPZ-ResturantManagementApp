@@ -1,16 +1,36 @@
 package org.example.restaurantmanagementapplication.service;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.entity.MenuItem;
+import org.example.restaurantmanagementapplication.repository.MenuItemRepository;
+import org.springframework.stereotype.Service;
 
-public interface MenuItemService {
-  List<MenuItem> findAll();
+@Service
+@RequiredArgsConstructor
+public class MenuItemService {
+  private final MenuItemRepository menuItemRepository;
 
-  List<MenuItem> findAvailable();
+  public List<MenuItem> findAll() {
+    return menuItemRepository.findAll();
+  }
 
-  MenuItem findById(Long id);
+  public List<MenuItem> findAvailable() {
+    return menuItemRepository.findByIsAvailableTrue();
+  }
 
-  MenuItem save(MenuItem menuItem);
+  public MenuItem findById(Long id) {
+    return menuItemRepository.findById(id).orElse(null);
+  }
 
-  void deleteById(Long id);
+  @Transactional
+  public MenuItem save(MenuItem menuItem) {
+    return menuItemRepository.save(menuItem);
+  }
+
+  @Transactional
+  public void deleteById(Long id) {
+    menuItemRepository.deleteById(id);
+  }
 }

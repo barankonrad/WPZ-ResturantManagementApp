@@ -1,5 +1,6 @@
 package org.example.restaurantmanagementapplication.rest;
 
+import org.example.restaurantmanagementapplication.mapper.MenuItemMapper;
 import org.example.restaurantmanagementapplication.service.MenuItemService;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -11,5 +12,10 @@ public class MenuItemControllerTestConfig {
   @Bean
   public MenuItemService menuItemService() {
     return Mockito.mock(MenuItemService.class);
+  }
+
+  @Bean
+  public MenuItemMapper menuItemMapper() {
+    return Mockito.mock(MenuItemMapper.class);
   }
 }

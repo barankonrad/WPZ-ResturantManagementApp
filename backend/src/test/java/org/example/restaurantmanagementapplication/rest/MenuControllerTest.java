@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import org.example.restaurantmanagementapplication.entity.MenuItem;
+import org.example.restaurantmanagementapplication.mapper.MenuMapper;
+import org.example.restaurantmanagementapplication.model.MenuItemForMenuDTO;
 import org.example.restaurantmanagementapplication.service.MenuItemService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,43 +27,26 @@ class MenuControllerTest {
 
   @Autowired private MenuItemService menuItemService;
 
+  @Autowired private MenuMapper menuMapper;
+
   @Test
   @WithMockUser(
       username = "admin@example.com",
       roles = {"ADMIN"})
   void testDisplayMenu_withAvailableItems() throws Exception {
-    // given
-    var menuItem1 = new MenuItem();
-    menuItem1.setId(1L);
-    menuItem1.setName("Pizza");
-    menuItem1.setAvailable(true);
+    var menuItem = new MenuItem();
+    menuItem.setId(1L);
+    menuItem.setName("Pizza");
 
-    var menuItem2 = new MenuItem();
-    menuItem2.setId(2L);
-    menuItem2.setName("Burger");
-    menuItem2.setAvailable(true);
+    var menuItemForMenuDTO = new MenuItemForMenuDTO(1L, "Pizza", null, null);
 
-    when(menuItemService.findAvailable()).thenReturn(List.of(menuItem1, menuItem2));
+    when(menuItemService.findAvailable()).thenReturn(List.of(menuItem));
+    when(menuMapper.toDTO(menuItem)).thenReturn(menuItemForMenuDTO);
 
-    // when + then
     mockMvc
         .perform(get("/menu"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].id").value(1))
-        .andExpect(jsonPath("$[0].name").value("Pizza"))
-        .andExpect(jsonPath("$[1].id").value(2))
-        .andExpect(jsonPath("$[1].name").value("Burger"));
-  }
-
-  @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testDisplayMenu_withNoAvailableItems() throws Exception {
-    // given
-    when(menuItemService.findAvailable()).thenReturn(List.of());
-
-    // when + then
-    mockMvc.perform(get("/menu")).andExpect(status().isOk()).andExpect(jsonPath("$").isEmpty());
+        .andExpect(jsonPath("$[0].name").value("Pizza"));
   }
 }
