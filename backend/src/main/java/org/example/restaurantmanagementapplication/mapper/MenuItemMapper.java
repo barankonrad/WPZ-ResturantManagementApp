@@ -1,7 +1,7 @@
 package org.example.restaurantmanagementapplication.mapper;
 
 import org.example.restaurantmanagementapplication.entity.MenuItem;
-import org.example.restaurantmanagementapplication.model.MenuItemDTO;
+import org.example.restaurantmanagementapplication.model.out.MenuItemDTO;
 import org.springframework.stereotype.Component;
 
 @Component

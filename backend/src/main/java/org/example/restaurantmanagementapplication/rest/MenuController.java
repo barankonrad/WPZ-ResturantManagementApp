@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.entity.MenuItem;
 import org.example.restaurantmanagementapplication.mapper.MenuMapper;
-import org.example.restaurantmanagementapplication.model.MenuItemForMenuDTO;
+import org.example.restaurantmanagementapplication.model.out.MenuItemForMenuDTO;
 import org.example.restaurantmanagementapplication.service.MenuItemService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

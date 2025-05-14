@@ -31,6 +31,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+  public static final String ADMIN_ROLE = "ADMIN";
+  public static final String CHEF_ROLE = "CHEF";
+  public static final String WAITER_ROLE = "WAITER";
   private final CustomUserDetailsService customUserDetailsService;
   @Value("${frontend.port}")
   public String frontendPort;
@@ -60,8 +63,11 @@ public class SecurityConfig {
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/", "/login", "/me").permitAll()
-            .requestMatchers("/admin").hasRole("ADMIN")
-            .requestMatchers("/orders/*/cancel").hasAnyRole("ADMIN", "WAITER")
+            .requestMatchers("/admin").hasRole(ADMIN_ROLE)
+            .requestMatchers("/orders/*/confirmed").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
+            .requestMatchers("/orders/*/in_progress").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
+            .requestMatchers("/orders/*/ready").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
+            .requestMatchers("/orders/*/cancel").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
             .anyRequest().authenticated()
         ).sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)

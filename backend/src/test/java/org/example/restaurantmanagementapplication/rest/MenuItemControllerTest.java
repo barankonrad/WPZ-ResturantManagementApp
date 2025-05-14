@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import org.example.restaurantmanagementapplication.entity.MenuItem;
 import org.example.restaurantmanagementapplication.mapper.MenuItemMapper;
-import org.example.restaurantmanagementapplication.model.MenuItemDTO;
+import org.example.restaurantmanagementapplication.model.out.MenuItemDTO;
 import org.example.restaurantmanagementapplication.service.MenuItemService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
