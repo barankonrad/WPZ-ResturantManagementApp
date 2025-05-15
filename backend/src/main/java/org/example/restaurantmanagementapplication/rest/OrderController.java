@@ -61,22 +61,22 @@ public class OrderController {
   }
 
 
-  @PostMapping("{id}/pending")
+  @PostMapping("{id}/mark-as-pending")
   public ResponseEntity<OrderDto> setPending(@PathVariable int id) {
     return updateStatus(id, OrderStatus.PENDING);
   }
 
-  @PostMapping("{id}/confirmed")
+  @PostMapping("{id}/confirm")
   public ResponseEntity<OrderDto> setConfirmed(@PathVariable int id) {
     return updateStatus(id, OrderStatus.CONFIRMED);
   }
 
-  @PostMapping("{id}/in_progress")
+  @PostMapping("{id}/start-preparation")
   public ResponseEntity<OrderDto> setInProgress(@PathVariable int id) {
     return updateStatus(id, OrderStatus.IN_PROGRESS);
   }
 
-  @PostMapping("{id}/ready")
+  @PostMapping("{id}/mark-as-ready")
   public ResponseEntity<OrderDto> setReady(@PathVariable int id) {
     return updateStatus(id, OrderStatus.READY);
   }

@@ -210,10 +210,10 @@ class OrderControllerTest {
 
   @ParameterizedTest(name = "Transition from {0} to {1} via endpoint {2}")
   @CsvSource({
-      "NEW, PENDING, /orders/1/pending",
-      "PENDING, CONFIRMED, /orders/1/confirmed",
-      "CONFIRMED, IN_PROGRESS, /orders/1/in_progress",
-      "IN_PROGRESS, READY, /orders/1/ready"
+      "NEW, PENDING, /orders/1/mark-as-pending",
+      "PENDING, CONFIRMED, /orders/1/confirm",
+      "CONFIRMED, IN_PROGRESS, /orders/1/start-preparation",
+      "IN_PROGRESS, READY, /orders/1/mark-as-ready"
   })
   @WithMockUser(username = "admin@example.com",
       roles = {"ADMIN"})
@@ -250,7 +250,7 @@ class OrderControllerTest {
 
     when(orderService.findById(1)).thenReturn(order);
 
-    mockMvc.perform(post("/orders/1/in_progress"))
+    mockMvc.perform(post("/orders/1/start-preparation"))
         .andExpect(status().isForbidden());
   }
 }

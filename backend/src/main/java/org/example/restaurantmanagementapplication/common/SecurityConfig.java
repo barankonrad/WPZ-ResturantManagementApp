@@ -64,9 +64,9 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/", "/login", "/me").permitAll()
             .requestMatchers("/admin").hasRole(ADMIN_ROLE)
-            .requestMatchers("/orders/*/confirmed").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
-            .requestMatchers("/orders/*/in_progress").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
-            .requestMatchers("/orders/*/ready").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
+            .requestMatchers("/orders/*/confirm").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
+            .requestMatchers("/orders/*/start-preparation").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
+            .requestMatchers("/orders/*/mark-as-ready").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
             .requestMatchers("/orders/*/cancel").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
             .anyRequest().authenticated()
         ).sessionManagement(session -> session
