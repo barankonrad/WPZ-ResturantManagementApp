@@ -1,6 +1,7 @@
 package org.example.restaurantmanagementapplication.rest;
 
 import org.example.restaurantmanagementapplication.common.SessionManager;
+import org.example.restaurantmanagementapplication.mapper.OrderMapper;
 import org.example.restaurantmanagementapplication.service.OrderService;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -17,5 +18,10 @@ public class OrderControllerTestConfig {
   @Bean
   public SessionManager sessionManager() {
     return Mockito.mock(SessionManager.class);
+  }
+
+  @Bean
+  public OrderMapper orderMapper() {
+    return Mockito.mock(OrderMapper.class);
   }
 }

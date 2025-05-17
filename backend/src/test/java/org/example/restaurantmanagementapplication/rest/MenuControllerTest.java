@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import org.example.restaurantmanagementapplication.entity.MenuItem;
 import org.example.restaurantmanagementapplication.mapper.MenuMapper;
-import org.example.restaurantmanagementapplication.model.MenuItemForMenuDTO;
+import org.example.restaurantmanagementapplication.model.out.MenuItemForMenuDTO;
 import org.example.restaurantmanagementapplication.service.MenuItemService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

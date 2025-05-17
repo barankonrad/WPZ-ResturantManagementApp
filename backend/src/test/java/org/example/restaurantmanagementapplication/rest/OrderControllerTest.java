@@ -1,5 +1,6 @@
 package org.example.restaurantmanagementapplication.rest;
 
+import static java.util.Collections.emptyList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -13,11 +14,16 @@ import java.util.Optional;
 import org.example.restaurantmanagementapplication.common.SessionManager;
 import org.example.restaurantmanagementapplication.entity.Order;
 import org.example.restaurantmanagementapplication.entity.User;
+import org.example.restaurantmanagementapplication.mapper.OrderMapper;
 import org.example.restaurantmanagementapplication.model.OrderStatus;
 import org.example.restaurantmanagementapplication.model.in.OrderItemRequest;
 import org.example.restaurantmanagementapplication.model.in.OrderRequest;
 import org.example.restaurantmanagementapplication.service.OrderService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,11 +38,19 @@ import org.springframework.test.web.servlet.MockMvc;
 class OrderControllerTest {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-  @Autowired private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
+  @Autowired
+  private OrderService orderService;
+  @Autowired
+  private SessionManager sessionManager;
+  @Autowired
+  private OrderMapper orderMapper;
 
-  @Autowired private OrderService orderService;
-
-  @Autowired private SessionManager sessionManager;
+  @BeforeEach
+  void resetMocks() {
+    Mockito.reset(orderService, sessionManager, orderMapper);
+  }
 
   @Test
   @WithMockUser(
@@ -56,6 +70,7 @@ class OrderControllerTest {
 
     when(sessionManager.getCurrentUser()).thenReturn(Optional.of(user));
     when(orderService.createOrder(any(OrderRequest.class))).thenReturn(order);
+    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
 
     // when + then
     mockMvc.perform(post("/orders")
@@ -77,6 +92,7 @@ class OrderControllerTest {
     order2.setId(2L);
 
     when(orderService.findAll()).thenReturn(List.of(order1, order2));
+    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
 
     // when + then
     mockMvc.perform(get("/orders")
@@ -92,7 +108,7 @@ class OrderControllerTest {
       roles = {"ADMIN"})
   void testRetrieveAllOrders_withNoOrdersReturned() throws Exception {
     // given
-    when(orderService.findAll()).thenReturn(List.of());
+    when(orderService.findAll()).thenReturn(emptyList());
 
     // when + then
     mockMvc.perform(get("/orders")
@@ -115,6 +131,7 @@ class OrderControllerTest {
 
     when(sessionManager.getCurrentUser()).thenReturn(Optional.empty());
     when(orderService.createOrder(any(OrderRequest.class))).thenReturn(order);
+    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
 
     // when + then
     mockMvc.perform(post("/orders")
@@ -139,6 +156,7 @@ class OrderControllerTest {
     when(sessionManager.getCurrentUser()).thenReturn(Optional.of(user));
     when(orderService.findById(1)).thenReturn(order);
     when(orderService.save(any(Order.class))).thenReturn(order);
+    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
 
     mockMvc
         .perform(post("/orders/1/cancel"))
@@ -170,6 +188,7 @@ class OrderControllerTest {
 
     when(sessionManager.getCurrentUser()).thenReturn(Optional.of(user));
     when(orderService.findById(1)).thenReturn(order);
+    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
 
     mockMvc
         .perform(post("/orders/1/cancel"))
@@ -187,5 +206,51 @@ class OrderControllerTest {
     when(orderService.findById(1)).thenReturn(order);
 
     mockMvc.perform(post("/orders/1/cancel")).andExpect(status().isForbidden());
+  }
+
+  @ParameterizedTest(name = "Transition from {0} to {1} via endpoint {2}")
+  @CsvSource({
+      "NEW, PENDING, /orders/1/mark-as-pending",
+      "PENDING, CONFIRMED, /orders/1/confirm",
+      "CONFIRMED, IN_PROGRESS, /orders/1/start-preparation",
+      "IN_PROGRESS, READY, /orders/1/mark-as-ready"
+  })
+  @WithMockUser(username = "admin@example.com",
+      roles = {"ADMIN"})
+  void testValidStatusTransitions(String fromStatus, String toStatus, String endpoint)
+      throws Exception {
+    User user = new User();
+    user.setEmail("admin@example.com");
+
+    Order order = new Order();
+    order.setId(1L);
+    order.setStatus(OrderStatus.valueOf(fromStatus));
+
+    Order updatedOrder = new Order();
+    updatedOrder.setId(1L);
+    updatedOrder.setStatus(OrderStatus.valueOf(toStatus));
+
+    when(sessionManager.getCurrentUser()).thenReturn(Optional.of(user));
+    when(orderService.findById(1)).thenReturn(order);
+    when(orderService.save(any(Order.class))).thenReturn(updatedOrder);
+    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
+
+    mockMvc.perform(post(endpoint))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value(toStatus));
+  }
+
+  @Test
+  @WithMockUser(username = "waiter@example.com",
+      roles = {"WAITER"})
+  void testSetInProgress_withWaiterRole() throws Exception {
+    var order = new Order();
+    order.setId(1L);
+    order.setStatus(OrderStatus.CONFIRMED);
+
+    when(orderService.findById(1)).thenReturn(order);
+
+    mockMvc.perform(post("/orders/1/start-preparation"))
+        .andExpect(status().isForbidden());
   }
 }

@@ -1,6 +1,9 @@
 package org.example.restaurantmanagementapplication.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -24,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class OrderServiceImplTest {
+class OrderServiceTest {
 
   @Mock
   private OrderRepository orderRepository;
@@ -33,7 +36,7 @@ class OrderServiceImplTest {
   private MenuItemRepository menuItemRepository;
 
   @InjectMocks
-  private OrderServiceImpl orderService;
+  private OrderService orderService;
 
   private MenuItem menuItem;
 

@@ -1,4 +1,4 @@
-package org.example.restaurantmanagementapplication.model;
+package org.example.restaurantmanagementapplication.model.out;
 
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
