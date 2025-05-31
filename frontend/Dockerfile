@@ -1,26 +1,19 @@
 FROM oven/bun:1 AS builder
 WORKDIR /app
 
-ENV PORT=3000
-ENV NODE_ENV=production
-ENV PUBLIC_API_BASE_URL=http://localhost:8080
-ENV MOCKED_USER=false
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
 COPY . .
-
-RUN bun i
 RUN bun run build
 
-FROM oven/bun AS app
+FROM oven/bun:1 AS app
+WORKDIR /app
 
 COPY --from=builder /app/build .
-
-ENV PORT=3000
-ENV NODE_ENV=production
-ENV PUBLIC_API_BASE_URL=http://localhost:8080
-ENV MOCKED_USER=false
+COPY --from=builder /app/package.json ./
 
 USER bun
-EXPOSE 3000/tcp
-ENTRYPOINT [ "bun", "build/index.js" ]
+EXPOSE 3000
+ENTRYPOINT [ "bun", "./index.js" ]
 
