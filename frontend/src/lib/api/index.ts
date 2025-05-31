@@ -1,3 +1,3 @@
-import { PUBLIC_API_BASE_URL } from "$env/static/public";
+import { env } from "$env/dynamic/public";
 
-export const baseURL = PUBLIC_API_BASE_URL;
+export const baseURL = env.PUBLIC_API_BASE_URL;
