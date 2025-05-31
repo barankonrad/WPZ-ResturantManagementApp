@@ -29,3 +29,4 @@ jobs:
           tags: konradbaran/restaurant-frontend-wpz:latest
           cache-from: type=registry,ref=konradbaran/restaurant-frontend-wpz:buildcache
           cache-to: type=registry,ref=konradbaran/restaurant-frontend-wpz:buildcache,mode=max
+          

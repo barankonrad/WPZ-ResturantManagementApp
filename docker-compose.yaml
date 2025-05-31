@@ -7,7 +7,7 @@ services:
     environment:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - FRONTEND_PORT=5173
+      - FRONTEND_PORT=3000
 
   frontend:
     image: konradbaran/restaurant-frontend-wpz:latest
@@ -15,10 +15,5 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - PUBLIC_API_BASE_URL=http://backend:8080
-
-networks:
-  default:
-    driver: bridge
-
+      - PUBLIC_API_BASE_URL=http://localhost:8080
 
