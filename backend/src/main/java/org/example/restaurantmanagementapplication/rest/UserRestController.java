@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserRestController {
   private final UserService userService;
   private final RoleService roleService;
+  static final String ROLE_NOT_FOUND= "Could not find role ";
 
   public UserRestController(UserService userService, RoleService roleService) {
     this.userService = userService;
@@ -40,7 +41,7 @@ public class UserRestController {
   }
 
   @PostMapping("/users")
-  public ResponseEntity<?> createUser(@RequestBody RegisterRequest registerRequest) {
+  public ResponseEntity<Object> createUser(@RequestBody RegisterRequest registerRequest) {
     if (PropertyUtils.countNullProperties(registerRequest) > 0) {
       return ResponseEntity.badRequest().body(new JSONErrorResponse("All fields are required"));
     }
@@ -48,7 +49,7 @@ public class UserRestController {
     Role role = roleService.findByName(registerRequest.getRole());
     if (role == null) {
       return ResponseEntity.badRequest()
-          .body(new JSONErrorResponse("Could not find role " + registerRequest.getRole()));
+          .body(new JSONErrorResponse(ROLE_NOT_FOUND + registerRequest.getRole()));
     }
     User user = new User();
     user.setEmail(registerRequest.getEmail());
@@ -59,7 +60,7 @@ public class UserRestController {
   }
 
   @PutMapping("/users")
-  public ResponseEntity<?> updateUser(@Valid @RequestBody User user) {
+  public ResponseEntity<Object> updateUser(@Valid @RequestBody User user) {
     if (userService.findById(user.getId()) == null) {
       return ResponseEntity.notFound().build();
     }
@@ -71,7 +72,7 @@ public class UserRestController {
     Role role = roleService.findById(user.getRole().getId());
     if (role == null) {
       return ResponseEntity.badRequest()
-          .body(new JSONErrorResponse("Could not find role " + user.getRole().getId()));
+          .body(new JSONErrorResponse(ROLE_NOT_FOUND + user.getRole().getId()));
     } else {
       user.setRole(role);
     }
@@ -81,7 +82,7 @@ public class UserRestController {
   }
 
   @PatchMapping("/users/{id}")
-  public ResponseEntity<?> updateUser(@RequestBody User newUser, @PathVariable int id) {
+  public ResponseEntity<Object> updateUser(@RequestBody User newUser, @PathVariable int id) {
     User user = userService.findById(id);
     if (user == null) {
       return ResponseEntity.notFound().build();
@@ -91,7 +92,7 @@ public class UserRestController {
       Role role = roleService.findById(newUser.getRole().getId());
       if (role == null) {
         return ResponseEntity.badRequest()
-            .body(new JSONErrorResponse("Could not find role " + newUser.getRole().getId()));
+            .body(new JSONErrorResponse(ROLE_NOT_FOUND + newUser.getRole().getId()));
       } else {
         user.setRole(role);
       }

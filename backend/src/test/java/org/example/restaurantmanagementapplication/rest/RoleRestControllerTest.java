@@ -1,6 +1,5 @@
-package org.example.restaurantmanagementapplication;
+package org.example.restaurantmanagementapplication.rest;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -8,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import org.example.restaurantmanagementapplication.entity.Role;
-import org.example.restaurantmanagementapplication.rest.RoleRestController;
 import org.example.restaurantmanagementapplication.service.RoleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @ExtendWith(MockitoExtension.class)
-public class RoleRestControllerTest {
+class RoleRestControllerTest {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private MockMvc mockMvc;
