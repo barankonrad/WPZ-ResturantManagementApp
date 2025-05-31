@@ -1,0 +1,24 @@
+services:
+  backend:
+    hostname: backend
+    image: konradbaran/restaurant-backend-wpz:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - FRONTEND_PORT=5173
+
+  frontend:
+    image: konradbaran/restaurant-frontend-wpz:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PUBLIC_API_BASE_URL=http://backend:8080
+
+networks:
+  default:
+    driver: bridge
+
+

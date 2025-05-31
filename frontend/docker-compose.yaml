@@ -1,5 +1,0 @@
-services:
-  frontend:
-    image: konradbaran/restaurant-frontend-wpz:latest
-    ports:
-      - "4173:4173"

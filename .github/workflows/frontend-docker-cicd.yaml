@@ -2,7 +2,7 @@ name: Frontend Docker container CICD
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "frontend/cicd"]
     paths: ["frontend/**"]
 
 jobs:
