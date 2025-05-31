@@ -14,6 +14,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - PORT=3000
       - NODE_ENV=production
       - PUBLIC_API_BASE_URL=http://localhost:8080
 
