@@ -15,6 +15,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.user = userMock();
   } else {
     const response = await me(event.fetch);
+    console.log(response)
     event.locals.user = response.authenticated ? response.user! : null;
   }
 
