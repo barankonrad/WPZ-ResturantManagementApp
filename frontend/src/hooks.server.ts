@@ -1,5 +1,4 @@
-import { me } from "$lib/api/auth";
-import { roles, type Role, type User } from "$lib/types/user";
+import { roles, UserSchema, type Role, type User } from "$lib/types/user";
 import { error, redirect, type Handle } from "@sveltejs/kit";
 import { MOCKED_USER } from "$env/static/private";
 
@@ -53,3 +52,32 @@ const userMock = (): User => ({
   email: "test@restaurant.com",
   role: roles.admin
 });
+
+// COPIED from auth.ts
+
+import * as v from "valibot";
+import { env } from "$env/dynamic/private"
+
+const baseURL = env.API_BASE_URL;
+
+export const me = async (customFetch = fetch) => {
+  let response: Response;
+
+  try {
+    response = await customFetch(`${baseURL}/me`, {
+      method: "GET",
+      credentials: "include"
+    });
+  } catch (error) {
+    return { authenticated: false, error };
+  }
+
+  if (!response.ok) {
+    return { authenticated: false, error: response.statusText, response };
+  }
+
+  const body = await response.json();
+  const user = v.parse(UserSchema, body);
+
+  return { authenticated: true, user, response };
+};
