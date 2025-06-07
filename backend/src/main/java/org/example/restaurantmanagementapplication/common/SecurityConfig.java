@@ -2,7 +2,6 @@ package org.example.restaurantmanagementapplication.common;
 
 import static java.util.Collections.singletonList;
 
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.service.CustomUserDetailsService;
@@ -71,6 +70,7 @@ public class SecurityConfig {
             .anyRequest().authenticated()
         ).sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            .sessionConcurrency(concurrency -> concurrency.maximumSessions(1))
         ).logout(logout -> logout
             .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
             .logoutSuccessUrl("/")
@@ -84,10 +84,26 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(Collections.singletonList("http://localhost:%s".formatted(frontendPort)));
+
+    configuration.setAllowedOriginPatterns(List.of(
+        "http://localhost:*",
+        "https://localhost:*",
+        "http://127.0.0.1:*",
+        "https://127.0.0.1:*"
+    ));
+
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-    configuration.setAllowedHeaders(Collections.singletonList("*"));
+
+    configuration.setAllowedHeaders(List.of("*"));
+
+    configuration.setExposedHeaders(List.of(
+        "Authorization",
+        "Cache-Control",
+        "Content-Type",
+        "Set-Cookie"
+    ));
     configuration.setAllowCredentials(true);
+    configuration.setMaxAge(3600L);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
