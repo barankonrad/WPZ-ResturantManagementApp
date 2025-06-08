@@ -10,10 +10,11 @@ services:
       - FRONTEND_PORT=3000
 
   frontend:
-    image: konradbaran/restaurant-frontend-wpz:latest
+    build:
+      context: frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
       - PUBLIC_API_BASE_URL=http://localhost:8080
       - API_BASE_URL=http://backend:8080
-
