@@ -99,7 +99,12 @@
 </script>
 
 <Tooltip.Provider>
-  <Pagination.Root {count} {perPage} bind:page={thisPage} class="flex max-w-[75%] flex-col justify-between">
+  <Pagination.Root
+    {count}
+    {perPage}
+    bind:page={thisPage}
+    class="flex max-w-[75%] flex-col justify-between"
+  >
     {#snippet children({ pages, currentPage })}
       {@const filteredItems = fetchMenuItems(currentPage, perPage)}
 
