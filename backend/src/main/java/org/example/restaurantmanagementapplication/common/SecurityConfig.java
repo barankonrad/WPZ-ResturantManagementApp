@@ -5,7 +5,6 @@ import static java.util.Collections.singletonList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.service.CustomUserDetailsService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,8 +33,6 @@ public class SecurityConfig {
   public static final String CHEF_ROLE = "CHEF";
   public static final String WAITER_ROLE = "WAITER";
   private final CustomUserDetailsService customUserDetailsService;
-  @Value("${frontend.port}")
-  public String frontendPort;
 
   @Bean
   public AuthenticationManager authenticationManager() {
