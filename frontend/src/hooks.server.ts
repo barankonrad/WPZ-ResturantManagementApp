@@ -1,6 +1,9 @@
 import { roles, UserSchema, type Role, type User } from "$lib/types/user";
-import { error, redirect, type Handle } from "@sveltejs/kit";
+import { error, redirect, type Handle, type HandleFetch } from "@sveltejs/kit";
 import { MOCKED_USER } from "$env/static/private";
+import { env } from "$env/dynamic/private";
+
+const internalBaseURL = env.API_BASE_URL;
 
 export const handle: Handle = async ({ event, resolve }) => {
   const route = event.route.id;
@@ -14,7 +17,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.user = userMock();
   } else {
     const response = await me(event.fetch);
-    console.log(response)
+    console.log(response);
     event.locals.user = response.authenticated ? response.user! : null;
   }
 
@@ -47,6 +50,22 @@ export const handle: Handle = async ({ event, resolve }) => {
   return await resolve(event);
 };
 
+export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
+  if (internalBaseURL && request.url.startsWith(internalBaseURL)) {
+    console.log(`including cookies: '${event.request.headers.get("cookie")}'`)
+    request.headers.set("cookie", event.request.headers.get("cookie") ?? "");
+  }
+
+  const x = await fetch(request);
+
+  console.log(`got response`, x)
+  console.log(`got set-cookie: '${x.headers.getSetCookie()}'`)
+
+  return x
+};
+
+// Helpers
+
 const userMock = (): User => ({
   id: 2137,
   email: "test@restaurant.com",
@@ -56,15 +75,12 @@ const userMock = (): User => ({
 // COPIED from auth.ts
 
 import * as v from "valibot";
-import { env } from "$env/dynamic/private"
-
-const baseURL = env.API_BASE_URL;
 
 export const me = async (customFetch = fetch) => {
   let response: Response;
 
   try {
-    response = await customFetch(`${baseURL}/me`, {
+    response = await customFetch(`${internalBaseURL}/me`, {
       method: "GET",
       credentials: "include"
     });
