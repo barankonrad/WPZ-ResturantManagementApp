@@ -1,9 +1,8 @@
-import { roles, UserSchema, type Role, type User } from "$lib/types/user";
+import { roles, type Role, type User } from "$lib/types/user";
 import { error, redirect, type Handle, type HandleFetch } from "@sveltejs/kit";
 import { MOCKED_USER } from "$env/static/private";
 import { env } from "$env/dynamic/private";
-
-const internalBaseURL = env.API_BASE_URL;
+import { me } from "$lib/api/auth";
 
 export const handle: Handle = async ({ event, resolve }) => {
   const route = event.route.id;
@@ -16,8 +15,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   if (MOCKED_USER === "true") {
     event.locals.user = userMock();
   } else {
-    const response = await me(event.fetch);
-    console.log(response);
+    const response = await me(internalBaseURL, event.fetch);
     event.locals.user = response.authenticated ? response.user! : null;
   }
 
@@ -50,18 +48,19 @@ export const handle: Handle = async ({ event, resolve }) => {
   return await resolve(event);
 };
 
+// Passing of cookies to internal backend service
+
+const internalBaseURL: string = (() => {
+  if (env.API_BASE_URL == null) throw new Error(`API_BASE_URL was unset`);
+  return env.API_BASE_URL;
+})();
+
 export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
-  if (internalBaseURL && request.url.startsWith(internalBaseURL)) {
-    console.log(`including cookies: '${event.request.headers.get("cookie")}'`)
+  if (request.url.startsWith(internalBaseURL)) {
     request.headers.set("cookie", event.request.headers.get("cookie") ?? "");
   }
 
-  const x = await fetch(request);
-
-  console.log(`got response`, x)
-  console.log(`got set-cookie: '${x.headers.getSetCookie()}'`)
-
-  return x
+  return await fetch(request);
 };
 
 // Helpers
@@ -71,29 +70,3 @@ const userMock = (): User => ({
   email: "test@restaurant.com",
   role: roles.admin
 });
-
-// COPIED from auth.ts
-
-import * as v from "valibot";
-
-export const me = async (customFetch = fetch) => {
-  let response: Response;
-
-  try {
-    response = await customFetch(`${internalBaseURL}/me`, {
-      method: "GET",
-      credentials: "include"
-    });
-  } catch (error) {
-    return { authenticated: false, error };
-  }
-
-  if (!response.ok) {
-    return { authenticated: false, error: response.statusText, response };
-  }
-
-  const body = await response.json();
-  const user = v.parse(UserSchema, body);
-
-  return { authenticated: true, user, response };
-};
