@@ -10,9 +10,7 @@ services:
       - FRONTEND_PORT=3000
 
   frontend:
-    build:
-      context: frontend
-      dockerfile: Dockerfile
+    image: konradbaran/restaurant-frontend-wpz:latest
     ports:
       - "3000:3000"
     environment:
