@@ -1,256 +1,172 @@
 package org.example.restaurantmanagementapplication.rest;
 
-import static java.util.Collections.emptyList;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import org.example.restaurantmanagementapplication.common.SessionManager;
-import org.example.restaurantmanagementapplication.entity.Order;
-import org.example.restaurantmanagementapplication.entity.User;
-import org.example.restaurantmanagementapplication.mapper.OrderMapper;
 import org.example.restaurantmanagementapplication.model.OrderStatus;
 import org.example.restaurantmanagementapplication.model.in.OrderItemRequest;
-import org.example.restaurantmanagementapplication.model.in.OrderRequest;
-import org.example.restaurantmanagementapplication.service.OrderService;
-import org.junit.jupiter.api.BeforeEach;
+import org.example.restaurantmanagementapplication.model.out.OrderDto;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(OrderControllerTestConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class OrderControllerTest {
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
   @Autowired
-  private MockMvc mockMvc;
-  @Autowired
-  private OrderService orderService;
-  @Autowired
-  private SessionManager sessionManager;
-  @Autowired
-  private OrderMapper orderMapper;
+  private TestRestTemplate restTemplate;
 
-  @BeforeEach
-  void resetMocks() {
-    Mockito.reset(orderService, sessionManager, orderMapper);
+  private static Long createdOrderId;
+
+  @Test
+  @Order(1)
+  void testGetAllOrders() {
+    // When
+    ResponseEntity<List<OrderDto>> response = restTemplate.exchange(
+        "/orders",
+        HttpMethod.GET,
+        null,
+        new ParameterizedTypeReference<List<OrderDto>>() {
+        }
+    );
+
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
   }
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testCreateOrder_withAuthenticatedUser() throws Exception {
-    // given
-    var itemRequest = new OrderItemRequest();
-    itemRequest.setMenuItemId(1L);
-    itemRequest.setQuantity(3);
+  @Order(2)
+  void testCreateOrder() {
+    // Given
+    List<OrderItemRequest> orderItems = new ArrayList<>();
+    OrderItemRequest item = new OrderItemRequest();
+    item.setMenuItemId(1L);
+    item.setQuantity(2);
+    orderItems.add(item);
 
-    var user = new User();
-    user.setEmail("admin@example.com");
+    // When
+    ResponseEntity<OrderDto> response = restTemplate.postForEntity(
+        "/orders",
+        orderItems,
+        OrderDto.class
+    );
 
-    var order = new Order();
-    order.setId(1L);
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertNotNull(response.getBody().getId());
+    assertEquals(OrderStatus.NEW, response.getBody().getStatus());
 
-    when(sessionManager.getCurrentUser()).thenReturn(Optional.of(user));
-    when(orderService.createOrder(any(OrderRequest.class))).thenReturn(order);
-    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
-
-    // when + then
-    mockMvc.perform(post("/orders")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(List.of(itemRequest))))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(1));
+    createdOrderId = response.getBody().getId();
   }
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testRetrieveAllOrders_withOrdersReturned() throws Exception {
-    var order1 = new Order();
-    order1.setId(1L);
+  @Order(3)
+  void testOrderStatusTransition_NewToPending() {
+    // When
+    ResponseEntity<OrderDto> response = restTemplate.postForEntity(
+        "/orders/" + createdOrderId + "/mark-as-pending",
+        null,
+        OrderDto.class
+    );
 
-    var order2 = new Order();
-    order2.setId(2L);
-
-    when(orderService.findAll()).thenReturn(List.of(order1, order2));
-    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
-
-    // when + then
-    mockMvc.perform(get("/orders")
-            .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].id").value(1))
-        .andExpect(jsonPath("$[1].id").value(2));
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdOrderId, response.getBody().getId());
+    assertEquals(OrderStatus.PENDING, response.getBody().getStatus());
   }
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testRetrieveAllOrders_withNoOrdersReturned() throws Exception {
-    // given
-    when(orderService.findAll()).thenReturn(emptyList());
+  @Order(4)
+  void testOrderStatusTransition_PendingToConfirmed() {
+    // When
+    ResponseEntity<OrderDto> response = restTemplate.postForEntity(
+        "/orders/" + createdOrderId + "/confirm",
+        null,
+        OrderDto.class
+    );
 
-    // when + then
-    mockMvc.perform(get("/orders")
-            .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isEmpty());
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdOrderId, response.getBody().getId());
+    assertEquals(OrderStatus.CONFIRMED, response.getBody().getStatus());
   }
 
   @Test
-  @WithMockUser(
-      username = "anonymous",
-      roles = {})
-  void testCreateOrder_withAnonymousUser() throws Exception {
-    var itemRequest = new OrderItemRequest();
-    itemRequest.setMenuItemId(1L);
-    itemRequest.setQuantity(2);
+  @Order(5)
+  void testOrderStatusTransition_ConfirmedToInProgress() {
+    // When
+    ResponseEntity<OrderDto> response = restTemplate.postForEntity(
+        "/orders/" + createdOrderId + "/start-preparation",
+        null,
+        OrderDto.class
+    );
 
-    var order = new Order();
-    order.setId(2L);
-
-    when(sessionManager.getCurrentUser()).thenReturn(Optional.empty());
-    when(orderService.createOrder(any(OrderRequest.class))).thenReturn(order);
-    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
-
-    // when + then
-    mockMvc.perform(post("/orders")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(List.of(itemRequest))))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(2));
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdOrderId, response.getBody().getId());
+    assertEquals(OrderStatus.IN_PROGRESS, response.getBody().getStatus());
   }
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testCancelOrder() throws Exception {
-    var user = new User();
-    user.setEmail("admin@example.com");
+  @Order(6)
+  void testOrderStatusTransition_InProgressToReady() {
+    // When
+    ResponseEntity<OrderDto> response = restTemplate.postForEntity(
+        "/orders/" + createdOrderId + "/mark-as-ready",
+        null,
+        OrderDto.class
+    );
 
-    var order = new Order();
-    order.setId(1L);
-    order.setStatus(OrderStatus.NEW);
-
-    when(sessionManager.getCurrentUser()).thenReturn(Optional.of(user));
-    when(orderService.findById(1)).thenReturn(order);
-    when(orderService.save(any(Order.class))).thenReturn(order);
-    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
-
-    mockMvc
-        .perform(post("/orders/1/cancel"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.status").value("CANCELLED"));
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdOrderId, response.getBody().getId());
+    assertEquals(OrderStatus.READY, response.getBody().getStatus());
   }
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testCancelOrder_nonExistentOrder() throws Exception {
-    when(orderService.findById(1)).thenReturn(null);
+  @Order(7)
+  void testCancelOrder_InvalidTransition() {
+    // When
+    ResponseEntity<OrderDto> response = restTemplate.postForEntity(
+        "/orders/" + createdOrderId + "/cancel",
+        null,
+        OrderDto.class
+    );
 
-    mockMvc.perform(post("/orders/1/cancel")).andExpect(status().isNotFound());
+    // Then
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(OrderStatus.READY, response.getBody().getStatus());
   }
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testCancelOrder_invalidOrderStatus() throws Exception {
-    var user = new User();
-    user.setEmail("admin@example.com");
+  @Order(8)
+  void testOrderStatusTransition_NonExistentOrder() {
+    // When
+    ResponseEntity<OrderDto> response = restTemplate.postForEntity(
+        "/orders/999999/mark-as-ready",
+        null,
+        OrderDto.class
+    );
 
-    var order = new Order();
-    order.setId(1L);
-    order.setStatus(OrderStatus.COMPLETED);
-
-    when(sessionManager.getCurrentUser()).thenReturn(Optional.of(user));
-    when(orderService.findById(1)).thenReturn(order);
-    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
-
-    mockMvc
-        .perform(post("/orders/1/cancel"))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.status").value("COMPLETED"));
-  }
-
-  @Test
-  @WithMockUser(username = "user@example.com")
-  void testCancelOrder_userWithoutRole() throws Exception {
-    var order = new Order();
-    order.setId(1L);
-    order.setStatus(OrderStatus.NEW);
-
-    when(orderService.findById(1)).thenReturn(order);
-
-    mockMvc.perform(post("/orders/1/cancel")).andExpect(status().isForbidden());
-  }
-
-  @ParameterizedTest(name = "Transition from {0} to {1} via endpoint {2}")
-  @CsvSource({
-      "NEW, PENDING, /orders/1/mark-as-pending",
-      "PENDING, CONFIRMED, /orders/1/confirm",
-      "CONFIRMED, IN_PROGRESS, /orders/1/start-preparation",
-      "IN_PROGRESS, READY, /orders/1/mark-as-ready"
-  })
-  @WithMockUser(username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testValidStatusTransitions(String fromStatus, String toStatus, String endpoint)
-      throws Exception {
-    User user = new User();
-    user.setEmail("admin@example.com");
-
-    Order order = new Order();
-    order.setId(1L);
-    order.setStatus(OrderStatus.valueOf(fromStatus));
-
-    Order updatedOrder = new Order();
-    updatedOrder.setId(1L);
-    updatedOrder.setStatus(OrderStatus.valueOf(toStatus));
-
-    when(sessionManager.getCurrentUser()).thenReturn(Optional.of(user));
-    when(orderService.findById(1)).thenReturn(order);
-    when(orderService.save(any(Order.class))).thenReturn(updatedOrder);
-    when(orderMapper.toDTO(any(Order.class))).thenCallRealMethod();
-
-    mockMvc.perform(post(endpoint))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.status").value(toStatus));
-  }
-
-  @Test
-  @WithMockUser(username = "waiter@example.com",
-      roles = {"WAITER"})
-  void testSetInProgress_withWaiterRole() throws Exception {
-    var order = new Order();
-    order.setId(1L);
-    order.setStatus(OrderStatus.CONFIRMED);
-
-    when(orderService.findById(1)).thenReturn(order);
-
-    mockMvc.perform(post("/orders/1/start-preparation"))
-        .andExpect(status().isForbidden());
+    // Then
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
 }

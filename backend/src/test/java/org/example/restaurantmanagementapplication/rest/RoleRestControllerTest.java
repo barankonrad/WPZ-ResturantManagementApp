@@ -1,187 +1,224 @@
 package org.example.restaurantmanagementapplication.rest;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Arrays;
+import java.util.List;
 import org.example.restaurantmanagementapplication.entity.Role;
-import org.example.restaurantmanagementapplication.service.RoleService;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RoleRestControllerTest {
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private MockMvc mockMvc;
-  @Mock private RoleService roleService;
-  @InjectMocks private RoleRestController roleRestController;
+  @Autowired
+  private TestRestTemplate restTemplate;
 
-  @BeforeEach
-  void setUp() {
-    mockMvc = MockMvcBuilders.standaloneSetup(roleRestController).build();
+  private static Integer createdRoleId;
+
+  @Test
+  @Order(1)
+  void testRetrieveAllRoles() {
+    // When
+    ResponseEntity<List<Role>> response = restTemplate.exchange(
+        "/roles",
+        HttpMethod.GET,
+        null,
+        new ParameterizedTypeReference<List<Role>>() {
+        }
+    );
+
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertTrue(response.getBody().size() > 0, "Roles list should not be empty");
   }
 
   @Test
-  void testRetrieveAllRoles() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName("ROLE_USER");
-    Role role2 = new Role();
-    role2.setId(2);
-    role2.setName("ROLE_ADMIN");
+  @Order(2)
+  void testCreateRole() {
+    // Given
+    Role newRole = new Role();
+    newRole.setName("TEST_ROLE");
 
-    when(roleService.findAll()).thenReturn(Arrays.asList(role, role2));
+    // When
+    ResponseEntity<Role> response = restTemplate.postForEntity(
+        "/roles",
+        newRole,
+        Role.class
+    );
 
-    mockMvc
-        .perform(get("/roles"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].id").value(1))
-        .andExpect(jsonPath("$[0].name").value("ROLE_USER"))
-        .andExpect(jsonPath("$[1].id").value(2))
-        .andExpect(jsonPath("$[1].name").value("ROLE_ADMIN"));
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertNotNull(response.getBody().getId());
+    assertEquals("ROLE_TEST_ROLE", response.getBody().getName());
+
+    createdRoleId = response.getBody().getId();
   }
 
   @Test
-  void testRetrieveRole() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName("ROLE_USER");
+  @Order(3)
+  void testRetrieveRole() {
+    // When
+    ResponseEntity<Role> response = restTemplate.getForEntity(
+        "/roles/" + createdRoleId,
+        Role.class
+    );
 
-    when(roleService.findById(1)).thenReturn(role);
-
-    mockMvc
-        .perform(get("/roles/1"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(1))
-        .andExpect(jsonPath("$.name").value("ROLE_USER"));
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdRoleId, response.getBody().getId());
+    assertEquals("ROLE_TEST_ROLE", response.getBody().getName());
   }
 
   @Test
-  void testRetrieveRoleNotFound() throws Exception {
-    when(roleService.findById(1)).thenReturn(null);
-
-    mockMvc.perform(get("/roles/1")).andExpect(status().isNotFound());
-  }
-
-  @Test
-  void testCreateRole() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName("ROLE_USER");
-
-    when(roleService.save(any(Role.class))).thenReturn(role);
-
-    mockMvc
-        .perform(
-            post("/roles")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(role)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(1))
-        .andExpect(jsonPath("$.name").value("ROLE_USER"));
-  }
-
-  @Test
-  void testReplaceRole() throws Exception {
-    Role existingRole = new Role();
-    existingRole.setId(1);
-    existingRole.setName("ROLE_USER");
-
+  @Order(4)
+  void testReplaceRole() {
+    // Given
     Role updatedRole = new Role();
-    updatedRole.setId(1);
-    updatedRole.setName("ROLE_ADMIN");
+    updatedRole.setId(createdRoleId);
+    updatedRole.setName("UPDATED_TEST_ROLE");
 
-    when(roleService.findById(1)).thenReturn(existingRole);
-    when(roleService.save(any(Role.class))).thenReturn(updatedRole);
+    // When
+    HttpEntity<Role> requestEntity = new HttpEntity<>(updatedRole);
+    ResponseEntity<Role> response = restTemplate.exchange(
+        "/roles",
+        HttpMethod.PUT,
+        requestEntity,
+        Role.class
+    );
 
-    mockMvc
-        .perform(
-            put("/roles")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedRole)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(1))
-        .andExpect(jsonPath("$.name").value("ROLE_ADMIN"));
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdRoleId, response.getBody().getId());
+    assertEquals("ROLE_UPDATED_TEST_ROLE", response.getBody().getName());
   }
 
   @Test
-  void testReplaceRoleNotFound() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName("ROLE_USER");
+  @Order(5)
+  void testUpdateRole() {
+    // Given
+    Role partialRole = new Role();
+    partialRole.setName("PATCHED_TEST_ROLE");
 
-    when(roleService.findById(1)).thenReturn(null);
+    // When
+    HttpEntity<Role> requestEntity = new HttpEntity<>(partialRole);
+    ResponseEntity<Role> response = restTemplate.exchange(
+        "/roles/" + createdRoleId,
+        HttpMethod.PATCH,
+        requestEntity,
+        Role.class
+    );
 
-    mockMvc
-        .perform(
-            put("/roles")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(role)))
-        .andExpect(status().isNotFound());
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdRoleId, response.getBody().getId());
+    assertEquals("ROLE_PATCHED_TEST_ROLE", response.getBody().getName());
   }
 
   @Test
-  void testUpdateRole() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName("ROLE_USER");
+  @Order(6)
+  void testDeleteRole() {
+    // When
+    ResponseEntity<Void> deleteResponse = restTemplate.exchange(
+        "/roles/" + createdRoleId,
+        HttpMethod.DELETE,
+        null,
+        Void.class
+    );
 
-    Role newRole = new Role();
-    newRole.setName("ROLE_ADMIN");
+    // Then
+    assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
 
-    when(roleService.findById(1)).thenReturn(role);
-    when(roleService.save(any(Role.class))).thenReturn(role);
-
-    mockMvc
-        .perform(
-            patch("/roles/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newRole)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.name").value("ROLE_ADMIN"));
+    ResponseEntity<Role> getResponse = restTemplate.getForEntity(
+        "/roles/" + createdRoleId,
+        Role.class
+    );
+    assertEquals(HttpStatus.NOT_FOUND, getResponse.getStatusCode());
   }
 
   @Test
-  void testUpdateRoleNotFound() throws Exception {
-    Role newRole = new Role();
-    newRole.setName("ROLE_ADMIN");
+  @Order(7)
+  void testRetrieveRoleNotFound() {
+    // When
+    ResponseEntity<Role> response = restTemplate.getForEntity(
+        "/roles/999999",
+        Role.class
+    );
 
-    when(roleService.findById(1)).thenReturn(null);
-
-    mockMvc
-        .perform(
-            patch("/roles/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newRole)))
-        .andExpect(status().isNotFound());
+    // Then
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
 
   @Test
-  void testDeleteRole() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName("ROLE_USER");
+  @Order(8)
+  void testReplaceRoleNotFound() {
+    // Given
+    Role nonExistentRole = new Role();
+    nonExistentRole.setId(999999);
+    nonExistentRole.setName("NON_EXISTENT_ROLE");
 
-    when(roleService.findById(1)).thenReturn(role);
-    doNothing().when(roleService).deleteById(1);
+    // When
+    HttpEntity<Role> requestEntity = new HttpEntity<>(nonExistentRole);
+    ResponseEntity<Role> response = restTemplate.exchange(
+        "/roles",
+        HttpMethod.PUT,
+        requestEntity,
+        Role.class
+    );
 
-    mockMvc.perform(delete("/roles/1")).andExpect(status().isNoContent());
+    // Then
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
 
   @Test
-  void testDeleteRoleNotFound() throws Exception {
-    when(roleService.findById(1)).thenReturn(null);
+  @Order(9)
+  void testUpdateRoleNotFound() {
+    // Given
+    Role partialRole = new Role();
+    partialRole.setName("NON_EXISTENT_ROLE");
 
-    mockMvc.perform(delete("/roles/1")).andExpect(status().isNotFound());
+    // When
+    HttpEntity<Role> requestEntity = new HttpEntity<>(partialRole);
+    ResponseEntity<Role> response = restTemplate.exchange(
+        "/roles/999999",
+        HttpMethod.PATCH,
+        requestEntity,
+        Role.class
+    );
+
+    // Then
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+  }
+
+  @Test
+  @Order(10)
+  void testDeleteRoleNotFound() {
+    // When
+    ResponseEntity<Void> response = restTemplate.exchange(
+        "/roles/999999",
+        HttpMethod.DELETE,
+        null,
+        Void.class
+    );
+
+    // Then
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
 }
