@@ -13,6 +13,7 @@
   import OrderCard from "./_components/order-card.svelte";
 
   const perPage = 5;
+
   const StatusToIconMapping = {
     [orderStatuses.pending]: CircleDashed,
     [orderStatuses.inProgress]: CircleDot,
@@ -229,23 +230,28 @@
       user: 3
     }
   ]);
-  let statusFilter: OrderStatus[] = $state([
-    orderStatuses.pending,
-    orderStatuses.inProgress,
-    orderStatuses.completed,
-    orderStatuses.cancelled
-  ]);
+
+  let currentPage = $state(1);
+  let statusFilters: OrderStatus[] = $state([]);
   let searchQuery: string = $state("");
+
+  $effect(() => {
+    [searchQuery, statusFilters]
+
+    currentPage = 1;
+  })
 
   const filterOrders = () => {
     let filteredOrders = orders;
 
-    if (statusFilter.length !== 0) {
-      filteredOrders = filteredOrders.filter((order) => statusFilter.includes(order.status));
+    if (statusFilters.length > 0) {
+      filteredOrders = filteredOrders.filter((order) => statusFilters.includes(order.status));
     }
+
     if (searchQuery) {
       filteredOrders = filteredOrders.filter((order) => order.id.toString().includes(searchQuery));
     }
+
     return filteredOrders;
   };
 
@@ -261,11 +267,7 @@
   let count = $derived(filterOrders().length);
 </script>
 
-<Pagination.Root
-  {count}
-  {perPage}
-  class="flex max-w-[40%] flex-grow flex-col justify-between gap-4 p-16"
->
+<Pagination.Root {count} {perPage} bind:page={currentPage} class="flex w-full flex-col justify-between gap-4 p-16">
   {#snippet children({ pages, currentPage })}
     <div class="flex w-full flex-row items-center justify-between">
       <Input
@@ -275,7 +277,7 @@
         bind:value={searchQuery}
       />
 
-      <Select.Root type="multiple" name="status" bind:value={statusFilter}>
+      <Select.Root type="multiple" name="status" bind:value={statusFilters}>
         <Select.Trigger class="w-[180px]">Filter by status</Select.Trigger>
         <Select.Content>
           {#each Object.entries(orderStatuses) as [key, value] (key)}
@@ -291,11 +293,13 @@
 
     <Accordion.Root type="single" class="w-full">
       {@const orderItems = fetchOrderItems(currentPage)}
+
       {#if orderItems.length === 0}
         <div class="flex h-full w-full items-center justify-center">
           <span class="text-sm font-medium">No orders found</span>
         </div>
       {/if}
+
       {#each orderItems as order (order.id)}
         {@const StatusIcon = StatusToIconMapping[order.status]}
         {@const StatusLabel = StatusToLabelMapping[order.status]}
@@ -317,28 +321,26 @@
       {/each}
     </Accordion.Root>
 
-    <div class="mt-auto">
-      <Pagination.Content>
-        <Pagination.Item>
-          <Pagination.PrevButton />
-        </Pagination.Item>
-        {#each pages as page (page.key)}
-          {#if page.type === "ellipsis"}
-            <Pagination.Item>
-              <Pagination.Ellipsis />
-            </Pagination.Item>
-          {:else}
-            <Pagination.Item isVisible={currentPage === page.value}>
-              <Pagination.Link {page} isActive={currentPage === page.value}>
-                {page.value}
-              </Pagination.Link>
-            </Pagination.Item>
-          {/if}
-        {/each}
-        <Pagination.Item>
-          <Pagination.NextButton />
-        </Pagination.Item>
-      </Pagination.Content>
-    </div>
+    <Pagination.Content>
+      <Pagination.Item>
+        <Pagination.PrevButton />
+      </Pagination.Item>
+      {#each pages as page (page.key)}
+        {#if page.type === "ellipsis"}
+          <Pagination.Item>
+            <Pagination.Ellipsis />
+          </Pagination.Item>
+        {:else}
+          <Pagination.Item isVisible={currentPage === page.value}>
+            <Pagination.Link {page} isActive={currentPage === page.value}>
+              {page.value}
+            </Pagination.Link>
+          </Pagination.Item>
+        {/if}
+      {/each}
+      <Pagination.Item>
+        <Pagination.NextButton />
+      </Pagination.Item>
+    </Pagination.Content>
   {/snippet}
 </Pagination.Root>
