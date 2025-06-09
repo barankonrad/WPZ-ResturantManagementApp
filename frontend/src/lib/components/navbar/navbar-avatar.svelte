@@ -2,6 +2,7 @@
   import { goto, invalidateAll } from "$app/navigation";
   import { FileSliders, LogIn, LogOut, Moon, Sun, UserRoundPlus } from "@lucide/svelte";
   import { toggleMode } from "mode-watcher";
+  import stc from "string-to-color";
 
   import { roles, type User } from "$lib/types/user";
   import * as Avatar from "$lib/components/ui/avatar";
@@ -9,10 +10,12 @@
   import { logout } from "$lib/api/auth";
 
   interface Props {
-    user: User | null;
+    user: User;
   }
 
   let { user }: Props = $props();
+
+  let avatarBackgroundColor = $derived(stc(user.email));
 
   const logOut = async () => {
     await logout();
@@ -24,9 +27,8 @@
   <DropdownMenu.Root>
     <DropdownMenu.Trigger>
       <Avatar.Root>
-        <Avatar.Image src={user ? "https://picsum.photos/256/256" : null} alt="Avatar" />
-        <Avatar.Fallback class="uppercase"
-          >{user ? user.email.substring(0, 2) : "ʘ‿ʘ"}</Avatar.Fallback
+        <Avatar.Fallback class="uppercase" style="background-color: {avatarBackgroundColor}"
+          >{user.email.substring(0, 2)}</Avatar.Fallback
         >
       </Avatar.Root>
     </DropdownMenu.Trigger>

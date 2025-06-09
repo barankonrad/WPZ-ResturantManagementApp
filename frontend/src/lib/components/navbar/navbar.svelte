@@ -9,7 +9,7 @@
   import type { CartState } from "../cart/cartState.svelte";
 
   interface Props {
-    user: User | null;
+    user: User;
     cart: CartState;
   }
 
