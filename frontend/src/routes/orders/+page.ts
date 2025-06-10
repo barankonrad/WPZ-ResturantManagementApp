@@ -1,11 +1,12 @@
-import { menu } from "$lib/api/menu";
+import { orders } from "$lib/api/orders";
 import { error } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
+import { Order } from "$lib/orderState.svelte";
 
 export const load: PageLoad = async ({ fetch }) => {
-  const data = await menu(fetch);
+  const data = await orders(fetch);
 
   if (data.success === false) error(500, "Internal error");
 
-  return { menu: data.parsed! };
+  return { orders: data.parsed!.map((entry) => new Order(entry)) };
 };
