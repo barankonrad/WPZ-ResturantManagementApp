@@ -1,5 +1,5 @@
 import { browser } from "$app/environment";
-import type { MenuItem } from "$lib/types/menu";
+import type { MenuItem } from "$lib/api/menu";
 
 export type CartEntry = {
   item: MenuItem;

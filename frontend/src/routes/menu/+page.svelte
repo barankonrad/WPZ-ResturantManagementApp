@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { PageProps } from "./$types";
+
   import { getContext } from "svelte";
   import * as Pagination from "$lib/components/ui/pagination";
   import * as Card from "$lib/components/ui/card";
@@ -8,54 +10,30 @@
   import { AspectRatio } from "$lib/components/ui/aspect-ratio";
   import { Slider } from "$lib/components/ui/slider";
   import { ShoppingCart } from "@lucide/svelte";
-  import type { MenuItem } from "$lib/types/menu";
   import type { CartState } from "$lib/components/cart/cartState.svelte";
+  import type { MenuItem } from "$lib/api/menu";
+
+  const { data }: PageProps = $props();
+  const menu = $derived(data.menu);
 
   const getCart: () => CartState = getContext("cart");
   const cart = $derived(getCart());
 
-  let menuItems: MenuItem[] = $state([
-    { id: "1", name: "Pizza", price: 10, imageUrl: "https://picsum.photos/64x64" },
-    { id: "2", name: "Burger", price: 8, imageUrl: "https://picsum.photos/64x64" },
-    { id: "3", name: "Pasta", price: 12, imageUrl: "https://picsum.photos/64x64" },
-    { id: "4", name: "Salad", price: 7, imageUrl: "https://picsum.photos/64x64" },
-    { id: "5", name: "Soda", price: 2, imageUrl: "https://picsum.photos/64x64" },
-    { id: "6", name: "Water", price: 1, imageUrl: "https://picsum.photos/64x64" },
-    { id: "7", name: "Ice Cream", price: 5, imageUrl: "https://picsum.photos/64x64" },
-    { id: "8", name: "Cake", price: 4, imageUrl: "https://picsum.photos/64x64" },
-    { id: "9", name: "Fries", price: 3, imageUrl: "https://picsum.photos/64x64" },
-    { id: "10", name: "Wings", price: 9, imageUrl: "https://picsum.photos/64x64" },
-    { id: "11", name: "Steak", price: 15, imageUrl: "https://picsum.photos/64x64" },
-    { id: "12", name: "Tacos", price: 6, imageUrl: "https://picsum.photos/64x64" },
-    { id: "13", name: "Sandwich", price: 8, imageUrl: "https://picsum.photos/64x64" },
-    { id: "14", name: "Soup", price: 5, imageUrl: "https://picsum.photos/64x64" },
-    { id: "15", name: "Breadsticks", price: 4, imageUrl: "https://picsum.photos/64x64" },
-    { id: "16", name: "Nachos", price: 7, imageUrl: "https://picsum.photos/64x64" },
-    { id: "17", name: "Brownie", price: 3, imageUrl: "https://picsum.photos/64x64" },
-    { id: "18", name: "Pudding", price: 2, imageUrl: "https://picsum.photos/64x64" },
-    { id: "19", name: "Muffin", price: 3, imageUrl: "https://picsum.photos/64x64" },
-    { id: "20", name: "Cupcake", price: 4, imageUrl: "https://picsum.photos/64x64" },
-    { id: "21", name: "Pie", price: 5, imageUrl: "https://picsum.photos/64x64" },
-    { id: "22", name: "Donut", price: 2, imageUrl: "https://picsum.photos/64x64" },
-    { id: "23", name: "Bagel", price: 3, imageUrl: "https://picsum.photos/64x64" },
-    { id: "24", name: "Croissant", price: 4, imageUrl: "https://picsum.photos/64x64" },
-    { id: "25", name: "Tart", price: 5, imageUrl: "https://picsum.photos/64x64" },
-    { id: "26", name: "Pancakes", price: 6, imageUrl: "https://picsum.photos/64x64" },
-    { id: "27", name: "Waffles", price: 7, imageUrl: "https://picsum.photos/64x64" },
-    { id: "28", name: "French Toast", price: 8, imageUrl: "https://picsum.photos/64x64" },
-    { id: "29", name: "Omelette", price: 9, imageUrl: "https://picsum.photos/64x64" },
-    { id: "30", name: "Quiche", price: 10, imageUrl: "https://picsum.photos/64x64" },
-    { id: "31", name: "Frittata", price: 11, imageUrl: "https://picsum.photos/64x64" },
-    { id: "32", name: "Crepes", price: 12, imageUrl: "https://picsum.photos/64x64" },
-    { id: "33", name: "Scone", price: 3, imageUrl: "https://picsum.photos/64x64" },
-    { id: "34", name: "Mousse", price: 4, imageUrl: "https://picsum.photos/64x64" },
-    { id: "35", name: "Cheesecake", price: 5, imageUrl: "https://picsum.photos/64x64" }
-  ]);
-  const maxPrice = Math.max(...menuItems.map((item) => item.price));
+  let menuItems: MenuItem[] = $derived(
+    menu
+      .map((x) => ({ ...x, imageUrl: "https://picsum.photos/64x64" }))
+      .map((x) => {
+        delete (x as any).description;
+        return x;
+      })
+  );
+
+  const minPrice = $derived(Math.min(...menuItems.map((item) => item.price)));
+  const maxPrice = $derived(Math.max(...menuItems.map((item) => item.price)));
 
   let thisPage = $state(1);
   let searchQuery = $state("");
-  let priceRange = $state([0, maxPrice]);
+  let priceRange = $derived([minPrice, maxPrice]);
 
   const filterMenuItems = () => {
     let filteredItems = menuItems;
@@ -113,7 +91,7 @@
 
         <div class="flex w-[20%] flex-row items-center gap-2">
           <p>${priceRange[0]!}</p>
-          <Slider type="multiple" bind:value={priceRange} max={maxPrice} step={1} />
+          <Slider type="multiple" bind:value={priceRange} min={minPrice} max={maxPrice} step={1} />
           <p>${priceRange[1]!}</p>
         </div>
       </div>
