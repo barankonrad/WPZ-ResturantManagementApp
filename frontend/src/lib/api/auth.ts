@@ -3,11 +3,11 @@ import { RoleSchema, UserSchema } from "$lib/types/user";
 
 import * as v from "valibot";
 
-export const me = async (customFetch = fetch) => {
+export const me = async (base = baseURL, customFetch = fetch) => {
   let response: Response;
 
   try {
-    response = await customFetch(`${baseURL}/me`, {
+    response = await customFetch(`${base}/me`, {
       method: "GET",
       credentials: "include"
     });

@@ -5,9 +5,9 @@ import static java.util.Collections.singletonList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.service.CustomUserDetailsService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -34,8 +34,6 @@ public class SecurityConfig {
   public static final String CHEF_ROLE = "CHEF";
   public static final String WAITER_ROLE = "WAITER";
   private final CustomUserDetailsService customUserDetailsService;
-  @Value("${frontend.port}")
-  public String frontendPort;
 
   @Bean
   public AuthenticationManager authenticationManager() {
@@ -56,6 +54,7 @@ public class SecurityConfig {
   }
 
   @Bean
+  @Profile("!test")
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authenticationProvider(authProvider())
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
