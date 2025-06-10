@@ -1,8 +1,8 @@
 package org.example.restaurantmanagementapplication.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.example.restaurantmanagementapplication.entity.Role;
@@ -36,14 +36,14 @@ class RoleRestControllerTest {
         "/roles",
         HttpMethod.GET,
         null,
-        new ParameterizedTypeReference<List<Role>>() {
+        new ParameterizedTypeReference<>() {
         }
     );
 
     // Then
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(response.getBody());
-    assertTrue(response.getBody().size() > 0, "Roles list should not be empty");
+    assertFalse(response.getBody().isEmpty(), "Roles list should not be empty");
   }
 
   @Test
@@ -63,7 +63,6 @@ class RoleRestControllerTest {
     // Then
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(response.getBody());
-    assertNotNull(response.getBody().getId());
     assertEquals("ROLE_TEST_ROLE", response.getBody().getName());
 
     createdRoleId = response.getBody().getId();

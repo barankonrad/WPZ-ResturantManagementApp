@@ -27,7 +27,7 @@ class MenuControllerTest {
         "/menu",
         HttpMethod.GET,
         null,
-        new ParameterizedTypeReference<List<MenuItemForMenuDTO>>() {
+        new ParameterizedTypeReference<>() {
         }
     );
 

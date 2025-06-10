@@ -37,7 +37,7 @@ class OrderControllerTest {
         "/orders",
         HttpMethod.GET,
         null,
-        new ParameterizedTypeReference<List<OrderDto>>() {
+        new ParameterizedTypeReference<>() {
         }
     );
 

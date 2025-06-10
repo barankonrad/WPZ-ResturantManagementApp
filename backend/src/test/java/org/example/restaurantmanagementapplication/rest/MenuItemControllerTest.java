@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.List;
 import org.example.restaurantmanagementapplication.model.out.MenuItemDTO;
@@ -28,8 +27,6 @@ class MenuItemControllerTest {
   @Autowired
   private TestRestTemplate restTemplate;
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-
   private static Long createdMenuItemId;
 
   @Test
@@ -40,7 +37,7 @@ class MenuItemControllerTest {
         "/menu-items",
         HttpMethod.GET,
         null,
-        new ParameterizedTypeReference<List<MenuItemDTO>>() {
+        new ParameterizedTypeReference<>() {
         }
     );
 
