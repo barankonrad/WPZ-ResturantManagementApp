@@ -81,6 +81,11 @@ public class OrderController {
     return updateStatus(id, OrderStatus.READY);
   }
 
+  @PostMapping("{id}/complete")
+  public ResponseEntity<OrderDto> setCompleted(@PathVariable int id) {
+    return updateStatus(id, OrderStatus.COMPLETED);
+  }
+
   private ResponseEntity<OrderDto> updateStatus(int id, OrderStatus targetStatus) {
     var order = orderService.findById(id);
     if (order == null) {
