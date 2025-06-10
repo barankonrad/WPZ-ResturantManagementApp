@@ -27,4 +27,8 @@ public class OrderStatusTransition {
   public static boolean isCancellable(OrderStatus status) {
     return status == OrderStatus.NEW || status == OrderStatus.PENDING;
   }
+
+  public static boolean canBeBilled(OrderStatus status) {
+    return status == OrderStatus.COMPLETED;
+  }
 }

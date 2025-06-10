@@ -2,12 +2,14 @@ package org.example.restaurantmanagementapplication.rest;
 
 import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.mapper.BillMapper;
+import org.example.restaurantmanagementapplication.model.OrderStatusTransition;
 import org.example.restaurantmanagementapplication.model.out.BillDto;
 import org.example.restaurantmanagementapplication.service.BillService;
 import org.example.restaurantmanagementapplication.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +24,7 @@ public class BillController {
   private final BillService billService;
   private final OrderService orderService;
 
-  @RequestMapping("/{orderId}")
+  @GetMapping("/{orderId}")
   public ResponseEntity<BillDto> getBill(@PathVariable Integer orderId) {
     var order = orderService.findById(orderId);
     if (order == null) {
@@ -45,6 +47,11 @@ public class BillController {
     if (order == null) {
       return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
           "Order with ID %s not found".formatted(orderId))).build();
+    }
+
+    if (!OrderStatusTransition.canBeBilled(order.getStatus())) {
+      return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_ACCEPTABLE,
+          "Order with ID %s is in status %s and can be billed".formatted(orderId, order.getStatus().name()))).build();
     }
 
     var existingBill = billService.getBillByOrderId(orderId);
