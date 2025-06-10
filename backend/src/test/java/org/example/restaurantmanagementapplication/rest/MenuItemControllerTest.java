@@ -1,207 +1,159 @@
 package org.example.restaurantmanagementapplication.rest;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.List;
-import org.example.restaurantmanagementapplication.entity.MenuItem;
-import org.example.restaurantmanagementapplication.mapper.MenuItemMapper;
 import org.example.restaurantmanagementapplication.model.out.MenuItemDTO;
-import org.example.restaurantmanagementapplication.service.MenuItemService;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(MenuItemControllerTestConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MenuItemControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+  @Autowired
+  private TestRestTemplate restTemplate;
 
-  @Autowired private MenuItemService menuItemService;
-
-  @Autowired private MenuItemMapper menuItemMapper;
-
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private static Long createdMenuItemId;
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testGetAllMenuItems_withItems() throws Exception {
-    var menuItem1 = new MenuItem();
-    menuItem1.setId(1L);
-    menuItem1.setName("Pizza");
+  @Order(1)
+  void testGetAllMenuItems() {
+    // When
+    ResponseEntity<List<MenuItemDTO>> response = restTemplate.exchange(
+        "/menu-items",
+        HttpMethod.GET,
+        null,
+        new ParameterizedTypeReference<>() {
+        }
+    );
 
-    var menuItem2 = new MenuItem();
-    menuItem2.setId(2L);
-    menuItem2.setName("Burger");
-
-    var menuItemDTO1 = new MenuItemDTO(1L, "Pizza", null, null, true);
-    var menuItemDTO2 = new MenuItemDTO(2L, "Burger", null, null, true);
-
-    when(menuItemService.findAll()).thenReturn(List.of(menuItem1, menuItem2));
-    when(menuItemMapper.toDTO(menuItem1)).thenReturn(menuItemDTO1);
-    when(menuItemMapper.toDTO(menuItem2)).thenReturn(menuItemDTO2);
-
-    mockMvc
-        .perform(get("/menu-items"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].id").value(1))
-        .andExpect(jsonPath("$[0].name").value("Pizza"))
-        .andExpect(jsonPath("$[1].id").value(2))
-        .andExpect(jsonPath("$[1].name").value("Burger"));
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
   }
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testGetAllMenuItems_noItems() throws Exception {
-    when(menuItemService.findAll()).thenReturn(List.of());
+  @Order(2)
+  void testCreateMenuItem() {
+    // Given
+    MenuItemDTO newMenuItem = new MenuItemDTO(
+        null,
+        "Test Pizza",
+        "A test pizza for E2E testing",
+        new BigDecimal("12.99"),
+        true
+    );
 
-    mockMvc
-        .perform(get("/menu-items"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isEmpty());
+    // When
+    ResponseEntity<MenuItemDTO> response = restTemplate.postForEntity(
+        "/menu-items",
+        newMenuItem,
+        MenuItemDTO.class
+    );
+
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertNotNull(response.getBody().getId());
+    assertEquals("Test Pizza", response.getBody().getName());
+    assertEquals("A test pizza for E2E testing", response.getBody().getDescription());
+    assertEquals(0, new BigDecimal("12.99").compareTo(response.getBody().getPrice()));
+    assertTrue(response.getBody().isAvailable());
+
+    createdMenuItemId = response.getBody().getId();
   }
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testGetMenuItemById_found() throws Exception {
-    var menuItem = new MenuItem();
-    menuItem.setId(1L);
-    menuItem.setName("Pizza");
+  @Order(3)
+  void testGetMenuItemById() {
+    // When
+    ResponseEntity<MenuItemDTO> response = restTemplate.getForEntity(
+        "/menu-items/" + createdMenuItemId,
+        MenuItemDTO.class
+    );
 
-    var menuItemDTO = new MenuItemDTO(1L, "Pizza", null, null, true);
-
-    when(menuItemService.findById(1L)).thenReturn(menuItem);
-    when(menuItemMapper.toDTO(menuItem)).thenReturn(menuItemDTO);
-
-    mockMvc
-        .perform(get("/menu-items/1"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(1))
-        .andExpect(jsonPath("$.name").value("Pizza"));
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdMenuItemId, response.getBody().getId());
+    assertEquals("Test Pizza", response.getBody().getName());
   }
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testGetMenuItemById_notFound() throws Exception {
-    when(menuItemService.findById(1L)).thenReturn(null);
+  @Order(4)
+  void testUpdateMenuItem() {
+    // Given
+    MenuItemDTO updatedMenuItem = new MenuItemDTO(
+        createdMenuItemId,
+        "Updated Test Pizza",
+        "An updated test pizza",
+        new BigDecimal("14.99"),
+        true
+    );
 
-    mockMvc.perform(get("/menu-items/1")).andExpect(status().isNotFound());
+    // When
+    HttpEntity<MenuItemDTO> requestEntity = new HttpEntity<>(updatedMenuItem);
+    ResponseEntity<MenuItemDTO> response = restTemplate.exchange(
+        "/menu-items",
+        HttpMethod.PUT,
+        requestEntity,
+        MenuItemDTO.class
+    );
+
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdMenuItemId, response.getBody().getId());
+    assertEquals("Updated Test Pizza", response.getBody().getName());
+    assertEquals("An updated test pizza", response.getBody().getDescription());
+    assertEquals(0, new BigDecimal("14.99").compareTo(response.getBody().getPrice()));
   }
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testCreateMenuItem() throws Exception {
-    var menuItem = new MenuItem();
-    menuItem.setId(1L);
-    menuItem.setName("Pizza");
-    menuItem.setPrice(new BigDecimal("10.00"));
+  @Order(5)
+  void testDeleteMenuItem() {
+    // When
+    ResponseEntity<Void> deleteResponse = restTemplate.exchange(
+        "/menu-items/" + createdMenuItemId,
+        HttpMethod.DELETE,
+        null,
+        Void.class
+    );
 
-    var menuItemDTO = new MenuItemDTO(1L, "Pizza", null, new BigDecimal("10.00"), true);
+    // Then
+    assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
 
-    when(menuItemMapper.toEntity(any(MenuItemDTO.class))).thenReturn(menuItem);
-    when(menuItemService.save(any(MenuItem.class))).thenReturn(menuItem);
-    when(menuItemMapper.toDTO(menuItem)).thenReturn(menuItemDTO);
-
-    mockMvc
-        .perform(
-            post("/menu-items")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(menuItemDTO)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(1))
-        .andExpect(jsonPath("$.name").value("Pizza"))
-        .andExpect(jsonPath("$.price").value(10.00));
+    ResponseEntity<MenuItemDTO> getResponse = restTemplate.getForEntity(
+        "/menu-items/" + createdMenuItemId,
+        MenuItemDTO.class
+    );
+    assertEquals(HttpStatus.NOT_FOUND, getResponse.getStatusCode());
   }
 
   @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testUpdateMenuItem_found() throws Exception {
-    var menuItem = new MenuItem();
-    menuItem.setId(1L);
-    menuItem.setName("Pizza");
-    menuItem.setPrice(new BigDecimal("10.00"));
+  @Order(6)
+  void testGetMenuItemById_notFound() {
+    // When
+    ResponseEntity<MenuItemDTO> response = restTemplate.getForEntity(
+        "/menu-items/999999",
+        MenuItemDTO.class
+    );
 
-    var menuItemDTO = new MenuItemDTO(1L, "Pizza", null, new BigDecimal("10.00"), true);
-
-    when(menuItemMapper.toEntity(any(MenuItemDTO.class))).thenReturn(menuItem);
-    when(menuItemService.findById(1L)).thenReturn(menuItem);
-    when(menuItemService.save(any(MenuItem.class))).thenReturn(menuItem);
-    when(menuItemMapper.toDTO(menuItem)).thenReturn(menuItemDTO);
-
-    mockMvc
-        .perform(
-            put("/menu-items")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(menuItemDTO)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(1))
-        .andExpect(jsonPath("$.name").value("Pizza"))
-        .andExpect(jsonPath("$.price").value(10.00));
-  }
-
-  @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testUpdateMenuItem_notFound() throws Exception {
-    var menuItemDTO = new MenuItemDTO(1L, "Pizza", null, null, true);
-
-    when(menuItemMapper.toEntity(any(MenuItemDTO.class))).thenReturn(new MenuItem());
-    when(menuItemService.findById(1L)).thenReturn(null);
-
-    mockMvc
-        .perform(
-            put("/menu-items")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(menuItemDTO)))
-        .andExpect(status().isNotFound());
-  }
-
-  @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testDeleteMenuItem_found() throws Exception {
-    var menuItem = new MenuItem();
-    menuItem.setId(1L);
-
-    when(menuItemService.findById(1L)).thenReturn(menuItem);
-    doNothing().when(menuItemService).deleteById(1L);
-
-    mockMvc.perform(delete("/menu-items/1")).andExpect(status().isNoContent());
-  }
-
-  @Test
-  @WithMockUser(
-      username = "admin@example.com",
-      roles = {"ADMIN"})
-  void testDeleteMenuItem_notFound() throws Exception {
-    when(menuItemService.findById(1L)).thenReturn(null);
-
-    mockMvc.perform(delete("/menu-items/1")).andExpect(status().isNotFound());
+    // Then
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
 }

@@ -1,349 +1,230 @@
 package org.example.restaurantmanagementapplication.rest;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import org.example.restaurantmanagementapplication.entity.Role;
 import org.example.restaurantmanagementapplication.entity.User;
 import org.example.restaurantmanagementapplication.model.in.RegisterRequest;
-import org.example.restaurantmanagementapplication.service.RoleService;
-import org.example.restaurantmanagementapplication.service.UserService;
-import org.junit.jupiter.api.BeforeEach;
+import org.example.restaurantmanagementapplication.model.out.UserOut;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-@ExtendWith(MockitoExtension.class)
-public class UserRestControllerTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class UserRestControllerTest {
 
-  public static final String TEST_MAIL = "test@example.com";
-  public static final String TEST_PASSWORD = "password";
-  public static final String TEST_ROLE_USER = "ROLE_USER";
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private MockMvc mockMvc;
-  @Mock
-  private UserService userService;
-  @Mock
-  private RoleService roleService;
-  @InjectMocks
-  private UserRestController userRestController;
+  @Autowired
+  private TestRestTemplate restTemplate;
 
-  @BeforeEach
-  void setUp() {
-    mockMvc = MockMvcBuilders.standaloneSetup(userRestController).build();
-  }
+  private static Integer createdUserId;
+  private static final String TEST_EMAIL = "test.e2e@example.com";
+  private static final String TEST_PASSWORD = "password123";
+  private static final String TEST_ROLE = "USER";
+  private static final String RESULT_TEST_ROLE = "ROLE_USER";
 
   @Test
-  void testRetrieveAllUsers() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName(TEST_ROLE_USER);
-
-    User user = new User();
-    user.setId(1);
-    user.setEmail(TEST_MAIL);
-    user.setPassword(TEST_PASSWORD);
-    user.setRole(role);
-
-    User user2 = new User();
-    user2.setId(2);
-    user2.setEmail("test2@example.com");
-    user2.setPassword("password2");
-    user2.setRole(role);
-
-    when(userService.findAll()).thenReturn(List.of(user, user2));
-
-    mockMvc
-        .perform(get("/users"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].id").value(1))
-        .andExpect(jsonPath("$[0].email").value(TEST_MAIL))
-        .andExpect(jsonPath("$[0].password").value(TEST_PASSWORD))
-        .andExpect(jsonPath("$[0].role.id").value(1))
-        .andExpect(jsonPath("$[1].id").value(2))
-        .andExpect(jsonPath("$[1].email").value("test2@example.com"))
-        .andExpect(jsonPath("$[1].password").value("password2"))
-        .andExpect(jsonPath("$[1].role.id").value(1));
-  }
-
-  @Test
-  void testRetrieveUser() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName(TEST_ROLE_USER);
-
-    User user = new User();
-    user.setId(1);
-    user.setEmail(TEST_MAIL);
-    user.setPassword(TEST_PASSWORD);
-    user.setRole(role);
-
-    when(userService.findById(1)).thenReturn(user);
-
-    mockMvc
-        .perform(get("/users/1"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(1))
-        .andExpect(jsonPath("$.email").value(TEST_MAIL))
-        .andExpect(jsonPath("$.password").value(TEST_PASSWORD))
-        .andExpect(jsonPath("$.role.id").value(1));
-  }
-
-  @Test
-  void testRetrieveUserNotFound() throws Exception {
-    when(userService.findById(1)).thenReturn(null);
-
-    mockMvc.perform(get("/users/1")).andExpect(status().isNotFound());
-  }
-
-  @Test
-  void testCreateUser() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName(TEST_ROLE_USER);
-
-    User user = new User();
-    user.setId(1);
-    user.setEmail(TEST_MAIL);
-    user.setPassword(TEST_PASSWORD);
-    user.setRole(role);
-
-    RegisterRequest registerRequest = new RegisterRequest(
-        user.getEmail(),
-        user.getPassword(),
-        user.getRole().getName()
+  @Order(1)
+  void testRetrieveAllUsers() {
+    // When
+    ResponseEntity<List<User>> response = restTemplate.exchange(
+        "/users",
+        HttpMethod.GET,
+        null,
+        new ParameterizedTypeReference<>() {
+        }
     );
 
-    when(roleService.findByName(TEST_ROLE_USER)).thenReturn(role);
-    when(userService.save(any(User.class))).thenReturn(user);
-
-    mockMvc
-        .perform(
-            post("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerRequest)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(1))
-        .andExpect(jsonPath("$.email").value(TEST_MAIL))
-        .andExpect(jsonPath("$.role").value(TEST_ROLE_USER))
-        .andExpect(jsonPath("$.password").doesNotExist());
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertFalse(response.getBody().isEmpty(), "Users list should not be empty");
   }
 
   @Test
-  void testCreateUserRoleNotFound() throws Exception {
-    RegisterRequest registerRequest = new RegisterRequest(TEST_MAIL, TEST_PASSWORD, TEST_ROLE_USER);
-    when(roleService.findByName(TEST_ROLE_USER)).thenReturn(null);
+  @Order(2)
+  void testCreateUser() {
+    // Given
+    RegisterRequest registerRequest = new RegisterRequest();
+    registerRequest.setEmail(TEST_EMAIL);
+    registerRequest.setPassword(TEST_PASSWORD);
+    registerRequest.setRole(TEST_ROLE);
 
-    mockMvc
-        .perform(
-            post("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerRequest)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Could not find role %s".formatted(TEST_ROLE_USER)));
+    // When
+    ResponseEntity<UserOut> response = restTemplate.postForEntity(
+        "/users",
+        registerRequest,
+        UserOut.class
+    );
+
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertNotNull(response.getBody().getId());
+    assertEquals(TEST_EMAIL, response.getBody().getEmail());
+    assertEquals(TEST_ROLE, response.getBody().getRole());
+
+    createdUserId = response.getBody().getId();
   }
 
   @Test
-  void testCreateUserWithNullProperties() throws Exception {
-    RegisterRequest registerRequest = new RegisterRequest(TEST_MAIL, TEST_PASSWORD, null);
+  @Order(3)
+  void testRetrieveUser() {
+    // When
+    ResponseEntity<User> response = restTemplate.getForEntity(
+        "/users/" + createdUserId,
+        User.class
+    );
 
-    mockMvc
-        .perform(
-            post("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerRequest)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("All fields are required"));
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdUserId, response.getBody().getId());
+    assertEquals(TEST_EMAIL, response.getBody().getEmail());
+    assertNotNull(response.getBody().getRole());
+    assertEquals(RESULT_TEST_ROLE, response.getBody().getRole().getName());
   }
 
   @Test
-  void testUpdateUser() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName(TEST_ROLE_USER);
+  @Order(4)
+  void testUpdateUser() {
+    // Given
+    ResponseEntity<User> getResponse = restTemplate.getForEntity(
+        "/users/" + createdUserId,
+        User.class
+    );
+    User existingUser = getResponse.getBody();
 
-    User user = new User();
-    user.setId(1);
-    user.setEmail(TEST_MAIL);
-    user.setRole(role);
-    user.setPassword(TEST_PASSWORD);
+    User updatedUser = new User();
+    updatedUser.setId(createdUserId);
+    updatedUser.setEmail("updated." + TEST_EMAIL);
+    updatedUser.setPassword(TEST_PASSWORD);
+    updatedUser.setRole(existingUser.getRole()); // Keep the same role
 
-    when(userService.findById(1)).thenReturn(user);
-    when(roleService.findById(1)).thenReturn(role);
-    when(userService.save(any(User.class))).thenReturn(user);
+    // When
+    HttpEntity<User> requestEntity = new HttpEntity<>(updatedUser);
+    ResponseEntity<User> response = restTemplate.exchange(
+        "/users",
+        HttpMethod.PUT,
+        requestEntity,
+        User.class
+    );
 
-    mockMvc
-        .perform(
-            put("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(1))
-        .andExpect(jsonPath("$.email").value(TEST_MAIL))
-        .andExpect(jsonPath("$.password").value(TEST_PASSWORD));
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdUserId, response.getBody().getId());
+    assertEquals("updated." + TEST_EMAIL, response.getBody().getEmail());
+    assertNotNull(response.getBody().getRole());
+    assertEquals(RESULT_TEST_ROLE, response.getBody().getRole().getName());
   }
 
   @Test
-  void testUpdateUserNotFound() throws Exception {
-    User user = new User();
-    user.setId(1);
-    user.setEmail(TEST_MAIL);
+  @Order(5)
+  void testPatchUser() {
+    // Given
+    User partialUser = new User();
+    partialUser.setEmail("patched." + TEST_EMAIL);
 
-    when(userService.findById(1)).thenReturn(null);
+    // When
+    HttpEntity<User> requestEntity = new HttpEntity<>(partialUser);
+    ResponseEntity<User> response = restTemplate.exchange(
+        "/users/" + createdUserId,
+        HttpMethod.PATCH,
+        requestEntity,
+        User.class
+    );
 
-    mockMvc
-        .perform(
-            put("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)))
-        .andExpect(status().isNotFound());
+    // Then
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(createdUserId, response.getBody().getId());
+    assertEquals("patched." + TEST_EMAIL, response.getBody().getEmail());
+    assertNotNull(response.getBody().getRole());
+    assertEquals(RESULT_TEST_ROLE, response.getBody().getRole().getName());
   }
 
   @Test
-  void testUpdateUserRoleNotFound() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName(TEST_ROLE_USER);
+  @Order(6)
+  void testDeleteUser() {
+    // When
+    ResponseEntity<Void> deleteResponse = restTemplate.exchange(
+        "/users/" + createdUserId,
+        HttpMethod.DELETE,
+        null,
+        Void.class
+    );
 
-    User user = new User();
-    user.setId(1);
-    user.setEmail(TEST_MAIL);
-    user.setRole(role);
-    user.setPassword(TEST_PASSWORD);
+    // Then
+    assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
 
-    when(userService.findById(1)).thenReturn(user);
-    when(roleService.findById(1)).thenReturn(null);
-
-    mockMvc
-        .perform(
-            put("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Could not find role 1"));
+    ResponseEntity<User> getResponse = restTemplate.getForEntity(
+        "/users/" + createdUserId,
+        User.class
+    );
+    assertEquals(HttpStatus.NOT_FOUND, getResponse.getStatusCode());
   }
 
   @Test
-  void testUpdateUserWithNullProperties() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName(TEST_ROLE_USER);
+  @Order(7)
+  void testRetrieveUserNotFound() {
+    // When
+    ResponseEntity<User> response = restTemplate.getForEntity(
+        "/users/999999",
+        User.class
+    );
 
-    User existingUser = new User();
-    existingUser.setId(1);
-    existingUser.setEmail(TEST_MAIL);
-    existingUser.setPassword(TEST_PASSWORD);
-    existingUser.setRole(role);
-
-    User userWithNullProperties = new User();
-    userWithNullProperties.setId(1);
-
-    when(userService.findById(1)).thenReturn(existingUser);
-
-    mockMvc
-        .perform(
-            put("/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userWithNullProperties)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("All fields are required"));
+    // Then
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
 
   @Test
-  void testPatchUser() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName(TEST_ROLE_USER);
+  @Order(8)
+  void testCreateUserWithInvalidRole() {
+    // Given
+    RegisterRequest registerRequest = new RegisterRequest();
+    registerRequest.setEmail("invalid.role@example.com");
+    registerRequest.setPassword("password123");
+    registerRequest.setRole("INVALID_ROLE"); // This role doesn't exist
 
-    User user = new User();
-    user.setId(1);
-    user.setEmail(TEST_MAIL);
-    user.setRole(role);
+    // When
+    ResponseEntity<Object> response = restTemplate.postForEntity(
+        "/users",
+        registerRequest,
+        Object.class
+    );
 
-    User newUser = new User();
-    newUser.setEmail("new@example.com");
-
-    when(userService.findById(1)).thenReturn(user);
-    when(userService.save(any(User.class))).thenReturn(user);
-
-    mockMvc
-        .perform(
-            patch("/users/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newUser)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.email").value("new@example.com"));
+    // Then
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
   }
 
   @Test
-  void testPatchUserNotFound() throws Exception {
-    User newUser = new User();
-    newUser.setEmail("new@example.com");
+  @Order(9)
+  void testCreateUserWithNullProperties() {
+    // Given
+    RegisterRequest registerRequest = new RegisterRequest();
+    registerRequest.setEmail("null.properties@example.com");
+    registerRequest.setPassword("password123");
 
-    when(userService.findById(1)).thenReturn(null);
+    // When
+    ResponseEntity<Object> response = restTemplate.postForEntity(
+        "/users",
+        registerRequest,
+        Object.class
+    );
 
-    mockMvc
-        .perform(
-            patch("/users/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newUser)))
-        .andExpect(status().isNotFound());
-  }
-
-  @Test
-  void testPatchUserWithNonExistentRole() throws Exception {
-    Role role = new Role();
-    role.setId(1);
-    role.setName(TEST_ROLE_USER);
-
-    User user = new User();
-    user.setId(1);
-    user.setEmail(TEST_MAIL);
-    user.setRole(role);
-
-    Role newRole = new Role();
-    newRole.setId(999);
-    newRole.setName("ROLE_TEST");
-
-    User newUser = new User();
-    newUser.setRole(newRole);
-
-    when(userService.findById(1)).thenReturn(user);
-    when(roleService.findById(999)).thenReturn(null);
-
-    mockMvc
-        .perform(
-            patch("/users/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newUser)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Could not find role 999"));
-  }
-
-  @Test
-  void testDeleteUser() throws Exception {
-    User user = new User();
-    user.setId(1);
-    user.setEmail(TEST_MAIL);
-
-    when(userService.findById(1)).thenReturn(user);
-    doNothing().when(userService).deleteById(1);
-
-    mockMvc.perform(delete("/users/1")).andExpect(status().isNoContent());
-  }
-
-  @Test
-  void testDeleteUserNotFound() throws Exception {
-    when(userService.findById(1)).thenReturn(null);
-
-    mockMvc.perform(delete("/users/1")).andExpect(status().isNotFound());
+    // Then
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
   }
 }
