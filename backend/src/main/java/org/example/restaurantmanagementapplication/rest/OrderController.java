@@ -3,6 +3,7 @@ package org.example.restaurantmanagementapplication.rest;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.common.SessionManager;
 import org.example.restaurantmanagementapplication.entity.User;
@@ -89,27 +90,10 @@ public class OrderController {
   }
 
   @PostMapping("{id}/update")
-  public ResponseEntity<Object> updateOrder(
-      @PathVariable int id, @RequestBody OrderUpdateRequest orderUpdateRequest) {
+  public ResponseEntity<OrderDto> updateOrder(@PathVariable int id, @RequestBody @Valid OrderUpdateRequest orderUpdateRequest) {
     var order = orderService.findById(id);
     if (order == null) {
       return ResponseEntity.notFound().build();
-    }
-
-    if (!OrderStatusTransition.canBeUpdated(order.getStatus())) {
-      return ResponseEntity.of(
-              ProblemDetail.forStatusAndDetail(
-                  HttpStatus.NOT_ACCEPTABLE,
-                  "Order in status " + order.getStatus().name() + " cannot be updated"))
-          .build();
-    }
-
-    if (orderUpdateRequest.getOrderedItems() == null
-        || orderUpdateRequest.getOrderedItems().isEmpty()) {
-      return ResponseEntity.of(
-              ProblemDetail.forStatusAndDetail(
-                  HttpStatus.BAD_REQUEST, "Ordered items cannot be null or empty"))
-          .build();
     }
 
     try {
@@ -119,12 +103,6 @@ public class OrderController {
     } catch (IllegalArgumentException e) {
       return ResponseEntity.of(
               ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage()))
-          .build();
-    } catch (Exception e) {
-      return ResponseEntity.of(
-              ProblemDetail.forStatusAndDetail(
-                  HttpStatus.INTERNAL_SERVER_ERROR,
-                  "An unexpected error occurred while updating the order: " + e.getMessage()))
           .build();
     }
   }
@@ -146,6 +124,6 @@ public class OrderController {
 
   private String getCurrentUserName() {
     Optional<User> currentUser = sessionManager.getCurrentUser();
-    return currentUser.isPresent() ? currentUser.get().getEmail() : "anonymous";
+    return currentUser.map(User::getEmail).orElse("anonymous");
   }
 }
