@@ -3,7 +3,10 @@ package org.example.restaurantmanagementapplication.model;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Set;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderStatusTransition {
 
   private static final EnumMap<OrderStatus, Set<OrderStatus>> allowedTransitions =
@@ -30,5 +33,9 @@ public class OrderStatusTransition {
 
   public static boolean canBeBilled(OrderStatus status) {
     return status == OrderStatus.COMPLETED;
+  }
+
+  public static boolean canBeUpdated(OrderStatus status) {
+    return status == OrderStatus.NEW || status == OrderStatus.PENDING;
   }
 }

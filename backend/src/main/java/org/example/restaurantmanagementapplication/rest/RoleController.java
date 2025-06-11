@@ -10,10 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class RoleRestController {
+public class RoleController {
 	private final RoleService roleService;
 
-	public RoleRestController(RoleService roleService) {
+	public RoleController(RoleService roleService) {
 		this.roleService = roleService;
 	}
 
