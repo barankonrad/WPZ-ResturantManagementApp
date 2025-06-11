@@ -11,8 +11,11 @@ import org.example.restaurantmanagementapplication.model.OrderStatus;
 import org.example.restaurantmanagementapplication.model.OrderStatusTransition;
 import org.example.restaurantmanagementapplication.model.in.OrderItemRequest;
 import org.example.restaurantmanagementapplication.model.in.OrderRequest;
+import org.example.restaurantmanagementapplication.model.in.OrderUpdateRequest;
 import org.example.restaurantmanagementapplication.model.out.OrderDto;
 import org.example.restaurantmanagementapplication.service.OrderService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,7 +63,6 @@ public class OrderController {
     return ResponseEntity.ok(mapper.toDTO(order));
   }
 
-
   @PostMapping("{id}/mark-as-pending")
   public ResponseEntity<OrderDto> setPending(@PathVariable int id) {
     return updateStatus(id, OrderStatus.PENDING);
@@ -86,6 +88,47 @@ public class OrderController {
     return updateStatus(id, OrderStatus.COMPLETED);
   }
 
+  @PostMapping("{id}/update")
+  public ResponseEntity<Object> updateOrder(
+      @PathVariable int id, @RequestBody OrderUpdateRequest orderUpdateRequest) {
+    var order = orderService.findById(id);
+    if (order == null) {
+      return ResponseEntity.notFound().build();
+    }
+
+    if (!OrderStatusTransition.canBeUpdated(order.getStatus())) {
+      return ResponseEntity.of(
+              ProblemDetail.forStatusAndDetail(
+                  HttpStatus.NOT_ACCEPTABLE,
+                  "Order in status " + order.getStatus().name() + " cannot be updated"))
+          .build();
+    }
+
+    if (orderUpdateRequest.getOrderedItems() == null
+        || orderUpdateRequest.getOrderedItems().isEmpty()) {
+      return ResponseEntity.of(
+              ProblemDetail.forStatusAndDetail(
+                  HttpStatus.BAD_REQUEST, "Ordered items cannot be null or empty"))
+          .build();
+    }
+
+    try {
+      order =
+          orderService.updateOrder(id, orderUpdateRequest.getOrderedItems(), getCurrentUserName());
+      return ResponseEntity.ok(mapper.toDTO(order));
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.of(
+              ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage()))
+          .build();
+    } catch (Exception e) {
+      return ResponseEntity.of(
+              ProblemDetail.forStatusAndDetail(
+                  HttpStatus.INTERNAL_SERVER_ERROR,
+                  "An unexpected error occurred while updating the order: " + e.getMessage()))
+          .build();
+    }
+  }
+
   private ResponseEntity<OrderDto> updateStatus(int id, OrderStatus targetStatus) {
     var order = orderService.findById(id);
     if (order == null) {
@@ -103,8 +146,6 @@ public class OrderController {
 
   private String getCurrentUserName() {
     Optional<User> currentUser = sessionManager.getCurrentUser();
-    return currentUser.isPresent()
-        ? currentUser.get().getEmail()
-        : "anonymous";
+    return currentUser.isPresent() ? currentUser.get().getEmail() : "anonymous";
   }
 }

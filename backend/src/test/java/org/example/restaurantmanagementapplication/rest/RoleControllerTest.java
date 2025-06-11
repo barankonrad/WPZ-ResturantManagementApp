@@ -21,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class RoleRestControllerTest {
+class RoleControllerTest {
 
   @Autowired
   private TestRestTemplate restTemplate;

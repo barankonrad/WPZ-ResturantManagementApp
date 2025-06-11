@@ -3,8 +3,11 @@ package org.example.restaurantmanagementapplication.common;
 import java.beans.PropertyDescriptor;
 import java.util.Arrays;
 import java.util.stream.Stream;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanWrapperImpl;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PropertyUtils {
   public static <T> Stream<String> getPropertiesStream(T source) {
     final BeanWrapperImpl wrappedSource = new BeanWrapperImpl(source);
