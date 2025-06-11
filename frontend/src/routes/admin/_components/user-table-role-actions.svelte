@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ShieldPlus, ShieldUser, Utensils } from "@lucide/svelte";
+  import { ChefHat, ShieldPlus, ShieldUser, Utensils } from "@lucide/svelte";
   import * as Select from "$lib/components/ui/select";
 
   import { type Role, stripRolePrefix, roles as userRoles } from "$lib/types/user";
@@ -13,7 +13,8 @@
   const RoleToIconMapping = {
     [userRoles.admin]: ShieldUser,
     [userRoles.manager]: ShieldPlus,
-    [userRoles.waiter]: Utensils
+    [userRoles.waiter]: Utensils,
+    [userRoles.chef]: ChefHat
   };
 
   let RoleIcon = $derived(RoleToIconMapping[role]);

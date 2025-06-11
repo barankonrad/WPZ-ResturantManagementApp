@@ -38,7 +38,8 @@ export const handle: Handle = async ({ event, resolve }) => {
   const allowedRoutes: { [K in Role]: string[] } = {
     [roles.admin]: ["/menu", "/orders", "/admin"],
     [roles.manager]: ["/menu", "/orders"],
-    [roles.waiter]: ["/menu", "/orders"]
+    [roles.waiter]: ["/menu", "/orders"],
+    [roles.chef]: ["/menu", "/orders"]
   };
 
   if (!allowedRoutes[event.locals.user.role].includes(route)) {

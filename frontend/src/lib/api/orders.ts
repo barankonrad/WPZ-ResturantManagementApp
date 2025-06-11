@@ -38,6 +38,24 @@ export const OrderResponseSchema = v.array(OrderSchema);
 export const orders = async (customFetch = fetch) =>
   handleGETRequest(customFetch, `${baseURL}/orders`, OrderResponseSchema);
 
+export const createOrderRequestSchema = v.array(
+  v.strictObject({
+    menuItemId: v.number(),
+    quantity: v.number()
+  })
+);
+export type CreateOrderRequest = v.InferOutput<typeof createOrderRequestSchema>;
+
+export const createOrder = async (data: CreateOrderRequest) =>
+  await fetch(`${baseURL}/orders`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
 const toStatus = async (id: ID, suffix: string) =>
   await fetch(`${baseURL}/orders/${id}/${suffix}`, { method: "POST", credentials: "include" });
 

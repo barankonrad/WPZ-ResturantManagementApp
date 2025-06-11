@@ -1,5 +1,6 @@
 import { browser } from "$app/environment";
 import type { MenuItem } from "$lib/api/menu";
+import { createOrder } from "$lib/api/orders";
 
 export type CartEntry = {
   item: MenuItem;
@@ -42,6 +43,18 @@ export class CartState {
 
   close() {
     this.isOpen = false;
+  }
+
+  async order() {
+    const data = Object.entries(this.entries).map(([k, v]) => ({
+      menuItemId: Number(k),
+      quantity: v.quantity
+    }));
+
+    const response = await createOrder(data);
+    if (!response.ok) throw response.status;
+
+    this.clear();
   }
 
   get entries() {

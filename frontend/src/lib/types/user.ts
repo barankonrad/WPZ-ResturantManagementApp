@@ -3,7 +3,8 @@ import * as v from "valibot";
 export const roles = {
   admin: "ROLE_ADMIN",
   manager: "ROLE_MANAGER",
-  waiter: "ROLE_WAITER"
+  waiter: "ROLE_WAITER",
+  chef: "ROLE_CHEF"
 } as const;
 
 export const stripRolePrefix = (s: Role) => s.split("_").at(-1);

@@ -7,6 +7,7 @@
   import { ScrollArea } from "$lib/components/ui/scroll-area";
   import { Eraser, ShoppingBasket, Trash } from "@lucide/svelte";
   import type { CartState } from "./cartState.svelte";
+  import { goto } from "$app/navigation";
 
   interface Props {
     cart: CartState;
@@ -14,10 +15,10 @@
 
   let { cart }: Props = $props();
 
-  const proceedToCheckout = () => {
-    // Implement checkout logic here
-    console.log("Proceeding to checkout with cart:", cart.entries);
-    alert("Functionality not implemented yet.");
+  const handleOrder = async () => {
+    await cart.order();
+    cart.close();
+    goto("/orders");
   };
 </script>
 
@@ -83,11 +84,11 @@
       </ScrollArea>
 
       <div class="mt-auto flex flex-row justify-between gap-2">
-        <Button variant="destructive" onclick={() => cart.clear()}>
+        <Button variant="destructive" disabled={cart.itemCount === 0} onclick={() => cart.clear()}>
           <Eraser class="mr-2 size-4" />
           Clear
         </Button>
-        <Button onclick={proceedToCheckout}>
+        <Button disabled={cart.itemCount === 0} onclick={() => handleOrder()}>
           <ShoppingBasket class="mr-2 size-4" />
           Proceed to Checkout
         </Button>
