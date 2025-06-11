@@ -1,7 +1,7 @@
 import { orders } from "$lib/api/orders";
 import { error } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
-import { Order } from "$lib/orderState.svelte";
+import { Order } from "./_state/orderState.svelte";
 
 export const load: PageLoad = async ({ fetch }) => {
   const data = await orders(fetch);

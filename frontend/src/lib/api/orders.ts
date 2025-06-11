@@ -1,4 +1,4 @@
-import { baseURL, handleGETRequest, IDSchema } from ".";
+import { baseURL, handleGETRequest, IDSchema, ISODateSchema, type ID } from ".";
 import * as v from "valibot";
 import { MenuItemSchema } from "./menu";
 
@@ -11,6 +11,8 @@ export const statuses = {
   completed: "COMPLETED",
   cancelled: "CANCELLED"
 } as const;
+
+export const statusesOrderedList = Object.values(statuses);
 
 export const OrderStatusSchema = v.pipe(v.string(), v.enum(statuses, "Invalid status"));
 export type OrderStatus = v.InferOutput<typeof OrderStatusSchema>;
@@ -25,8 +27,8 @@ export type OrderItem = v.InferOutput<typeof OrderItemSchema>;
 export const OrderSchema = v.strictObject({
   id: IDSchema,
   status: OrderStatusSchema,
-  createdAt: v.pipe(v.string(), v.isoTimestamp()),
-  updatedAt: v.pipe(v.string(), v.isoTimestamp()),
+  createdAt: ISODateSchema,
+  updatedAt: ISODateSchema,
   items: v.array(OrderItemSchema)
 });
 export type Order = v.InferOutput<typeof OrderSchema>;
@@ -35,3 +37,16 @@ export const OrderResponseSchema = v.array(OrderSchema);
 
 export const orders = async (customFetch = fetch) =>
   handleGETRequest(customFetch, `${baseURL}/orders`, OrderResponseSchema);
+
+const toStatus = async (id: ID, suffix: string) =>
+  await fetch(`${baseURL}/orders/${id}/${suffix}`, { method: "POST", credentials: "include" });
+
+export const toPending = (id: ID) => toStatus(id, "mark-as-pending");
+export const toConfirmed = (id: ID) => toStatus(id, "confirm");
+export const toInProgress = (id: ID) => toStatus(id, "start-preparation");
+export const toReady = (id: ID) => toStatus(id, "mark-as-ready");
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const toCompleted = (_id: ID) => {
+  throw new Error("Unimplemented");
+};
+export const toCancelled = (id: ID) => toStatus(id, "cancel");

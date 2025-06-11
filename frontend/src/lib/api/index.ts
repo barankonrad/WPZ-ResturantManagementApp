@@ -11,6 +11,14 @@ export const IDSchema = v.pipe(
   v.integer(),
   v.custom((n) => (n as number) >= 0)
 );
+export type ID = v.InferOutput<typeof IDSchema>;
+
+export const ISODateSchema = v.pipe(
+  v.string(),
+  v.isoTimestamp(),
+  v.transform((s) => new Date(s))
+);
+export type ISODate = v.InferOutput<typeof ISODateSchema>;
 
 export const handleGETRequest = async <
   S extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>

@@ -3,7 +3,8 @@
   import { ScrollArea } from "$lib/components/ui/scroll-area";
   import { cn } from "$lib/utils";
   import { Check, CookingPot, Eye, Soup, Truck, X } from "@lucide/svelte";
-  import { statuses as orderStatuses, type Order, type OrderStatus } from "$lib/api/orders";
+  import { statuses as orderStatuses, type OrderStatus } from "$lib/api/orders";
+  import type { Order } from "../_state/orderState.svelte";
 
   interface Props {
     order: Order;
@@ -19,7 +20,7 @@
     [orderStatuses.ready]: { background: "bg-lime-500", text: "text-lime-500" },
     [orderStatuses.completed]: { background: "bg-green-500", text: "text-green-500" },
     [orderStatuses.cancelled]: { background: "bg-red-500", text: "text-red-500" }
-  };
+  } as const;
 
   const StatusToLevelMapping = Object.fromEntries(
     Object.values(orderStatuses).map((status, index) => [status, index])
@@ -41,10 +42,6 @@
       0
     )
   );
-
-  const setOrderStatus = (status: OrderStatus) => {
-    order.status = status;
-  };
 </script>
 
 <div class="flex flex-row gap-4 p-8">
@@ -116,34 +113,34 @@
 
     <div class="flex flex-row items-end justify-end gap-4">
       {#if order.status === orderStatuses.new}
-        <Button variant="default" onclick={() => setOrderStatus(orderStatuses.pending)}>
+        <Button variant="default" onclick={() => order.proceed()}>
           <Eye class="mr-2 size-4" />
           Mark as viewed
         </Button>
       {:else if order.status === orderStatuses.pending}
-        <Button variant="default" onclick={() => setOrderStatus(orderStatuses.confirmed)}>
+        <Button variant="default" onclick={() => order.proceed()}>
           <Check class="mr-2 size-4" />
           Confirm
         </Button>
       {:else if order.status === orderStatuses.confirmed}
-        <Button variant="default" onclick={() => setOrderStatus(orderStatuses.inProgress)}>
+        <Button variant="default" onclick={() => order.proceed()}>
           <CookingPot class="mr-2 size-4" />
           Prepare
         </Button>
       {:else if order.status === orderStatuses.inProgress}
-        <Button variant="default" onclick={() => setOrderStatus(orderStatuses.ready)}>
+        <Button variant="default" onclick={() => order.proceed()}>
           <Soup class="mr-2 size-4" />
           Mark as prepared
         </Button>
       {:else if order.status === orderStatuses.ready}
-        <Button variant="default" onclick={() => setOrderStatus(orderStatuses.completed)}>
+        <Button variant="default" onclick={() => order.proceed()}>
           <Truck class="mr-2 size-4" />
           Deliver
         </Button>
       {/if}
 
       {#if order.status !== orderStatuses.cancelled && order.status !== orderStatuses.completed}
-        <Button variant="destructive" onclick={() => setOrderStatus(orderStatuses.cancelled)}>
+        <Button variant="destructive" onclick={() => order.cancel()}>
           <X class="mr-2 size-4" />
           Cancel
         </Button>

@@ -19,7 +19,7 @@
   const { data }: PageProps = $props();
   const { orders } = data;
 
-  const perPage = 5;
+  const perPage = 8;
 
   const StatusToIconMapping = {
     [orderStatuses.new]: CircleDashed,
@@ -55,16 +55,23 @@
     return filteredOrders;
   };
 
-  // Simulate fetching data with pagination
+  // Simulate pagination
   const fetchOrderItems = (page: number) => {
     const start = (page - 1) * perPage;
     const end = start + perPage;
 
     const filteredOrders = filterOrders();
-    return filteredOrders.slice(start, end);
+    return filteredOrders
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()) // Newest first
+      .slice(start, end);
   };
 
   let count = $derived(filterOrders().length);
+
+  const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    dateStyle: "short",
+    timeStyle: "medium"
+  });
 </script>
 
 <Pagination.Root
@@ -115,7 +122,7 @@
           <Accordion.Trigger class="flex w-full items-center justify-between">
             <div class="flex flex-col items-start">
               <span class="text-sm font-medium">Order #{order.id}</span>
-              <span class="text-xs text-gray-500">{order.createdAt}</span>
+              <span class="text-xs text-gray-500">{dateFormatter.format(order.createdAt)}</span>
             </div>
             <div class="flex items-center gap-2">
               <StatusIcon class="h-4 w-4 text-foreground" />
@@ -139,6 +146,7 @@
             <Pagination.Ellipsis />
           </Pagination.Item>
         {:else}
+          {/* @ts-ignore */ null}
           <Pagination.Item isVisible={currentPage === page.value}>
             <Pagination.Link {page} isActive={currentPage === page.value}>
               {page.value}
