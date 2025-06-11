@@ -16,7 +16,8 @@ export type Role = v.InferOutput<typeof RoleSchema>;
 export const UserSchema = v.strictObject({
   id: v.pipe(v.number(), v.integer()),
   email: v.pipe(v.string(), v.email()),
-  role: RoleSchema
+  role: RoleSchema,
+  password: v.optional(v.string())
 });
 
 export type User = v.InferOutput<typeof UserSchema>;

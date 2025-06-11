@@ -1,4 +1,4 @@
-<script lang="ts" generics="TData, TValue">
+<script lang="ts" generics="TValue">
   import {
     type ColumnDef,
     type ColumnFiltersState,
@@ -18,12 +18,12 @@
   import MenuAddDialog from "./menu-add-dialog.svelte";
   import type { MenuItem } from "$lib/types/menu";
 
-  type DataTableProps<TData, TValue> = {
-    columns: ColumnDef<TData, TValue>[];
-    data: TData[];
+  type DataTableProps<MenuItem, TValue> = {
+    columns: ColumnDef<MenuItem, TValue>[];
+    data: MenuItem[];
   };
 
-  let { data = $bindable(), columns }: DataTableProps<TData, TValue> = $props();
+  let { data = $bindable(), columns }: DataTableProps<MenuItem, TValue> = $props();
 
   let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 6 });
   let columnFilters = $state<ColumnFiltersState>([]);
@@ -82,17 +82,6 @@
       }
     }
   });
-
-  const addMenuItem = (name: string, price: number, imageUrl: string) => {
-    const newItem: MenuItem = {
-      id: data.length + 1,
-      name,
-      price,
-      imageUrl
-    };
-
-    data = [...data, newItem];
-  };
 </script>
 
 <div>
@@ -194,5 +183,5 @@
     </div>
   </div>
 
-  <MenuAddDialog bind:open={dialogOpen} addData={addMenuItem} />
+  <MenuAddDialog bind:open={dialogOpen} />
 </div>

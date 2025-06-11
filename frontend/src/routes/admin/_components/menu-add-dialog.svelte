@@ -5,13 +5,14 @@
   import { Label } from "$lib/components/ui/label";
   import { AspectRatio } from "$lib/components/ui/aspect-ratio";
   import { Upload } from "@lucide/svelte";
+  import { createMenuItem } from "$lib/api/admin";
+    import { invalidate, invalidateAll } from "$app/navigation";
 
   interface Props {
     open: boolean;
-    addData: (name: string, price: number, imageUrl: string) => void;
   }
 
-  let { open = $bindable(), addData }: Props = $props();
+  let { open = $bindable() }: Props = $props();
 
   let files: FileList | undefined = $state();
   let name: string = $state("");
@@ -23,8 +24,17 @@
     return "";
   });
 
-  const handleAdd = () => {
-    addData(name, price, imageUrl);
+  const handleAdd = async () => {
+    const response = await createMenuItem({
+      name,
+      description: null,
+      price,
+      available: true
+    });
+
+    invalidateAll()
+
+    if (!response.ok) throw response.status;
 
     name = "";
     price = 0;

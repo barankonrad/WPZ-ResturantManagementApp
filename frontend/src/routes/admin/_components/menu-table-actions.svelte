@@ -4,6 +4,8 @@
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { CircleMinus, Clipboard } from "@lucide/svelte";
   import type { MenuItem } from "$lib/types/menu";
+  import { deleteMenuItem } from "$lib/api/admin";
+  import { invalidate, invalidateAll } from "$app/navigation";
 
   interface Props {
     id: MenuItem["id"];
@@ -11,10 +13,12 @@
 
   let { id }: Props = $props();
 
-  const removeMenuItem = () => {
-    // TODO: Implement the logic to remove menu item
-    console.log("Remove menu item");
-    alert("Remove menu item functionality not implemented yet.");
+  const handleDeleteMenuItem = async () => {
+    const response = await deleteMenuItem(Number(id));
+
+    if (!response.ok) throw response.status;
+
+    invalidateAll();
   };
 </script>
 
@@ -34,7 +38,7 @@
         <span class="text-sm">Copy ID</span>
       </div>
     </DropdownMenu.Item>
-    <DropdownMenu.Item onclick={removeMenuItem}>
+    <DropdownMenu.Item onclick={() => handleDeleteMenuItem()}>
       <div class="flex flex-row items-center gap-2">
         <CircleMinus class="h-4 w-4" />
         <span class="text-sm">Remove</span>

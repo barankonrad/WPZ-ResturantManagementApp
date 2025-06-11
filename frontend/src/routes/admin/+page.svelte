@@ -7,76 +7,14 @@
   import { CookingPot, ShoppingCart, Users } from "@lucide/svelte";
   import UserTable from "./_components/user-table.svelte";
   import MenuTable from "./_components/menu-table.svelte";
-  import type { User } from "$lib/types/user";
-  import type { MenuItem } from "$lib/types/menu";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
 
-  let menuItems: MenuItem[] = $state(data.menu);
+  console.log(data);
 
-  let users: User[] = [
-    {
-      id: 1,
-      email: "user1@example.org",
-      role: "ROLE_MANAGER"
-    },
-    {
-      id: 2,
-      email: "user2@example.org",
-      role: "ROLE_MANAGER"
-    },
-    {
-      id: 3,
-      email: "user3@example.org",
-      role: "ROLE_MANAGER"
-    },
-    {
-      id: 4,
-      email: "chef1@example.org",
-      role: "ROLE_WAITER"
-    },
-    {
-      id: 5,
-      email: "chef2@example.org",
-      role: "ROLE_WAITER"
-    },
-    {
-      id: 6,
-      email: "chef3@example.org",
-      role: "ROLE_WAITER"
-    },
-    {
-      id: 7,
-      email: "waiter1@example.org",
-      role: "ROLE_WAITER"
-    },
-    {
-      id: 8,
-      email: "waiter2@example.org",
-      role: "ROLE_WAITER"
-    },
-    {
-      id: 9,
-      email: "waiter3@example.org",
-      role: "ROLE_WAITER"
-    },
-    {
-      id: 10,
-      email: "manager1@example.org",
-      role: "ROLE_MANAGER"
-    },
-    {
-      id: 11,
-      email: "manager2@example.org",
-      role: "ROLE_MANAGER"
-    },
-    {
-      id: 12,
-      email: "admin@example.org",
-      role: "ROLE_ADMIN"
-    }
-  ];
+  let users = $derived(data.users);
+  let menuItems = $derived(data.menu);
 
   let orders = [];
 </script>
