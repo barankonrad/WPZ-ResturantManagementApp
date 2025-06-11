@@ -8,10 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.entity.Order;
 import org.example.restaurantmanagementapplication.entity.OrderItem;
 import org.example.restaurantmanagementapplication.model.OrderStatus;
+import org.example.restaurantmanagementapplication.model.OrderStatusTransition;
 import org.example.restaurantmanagementapplication.model.in.OrderItemUpdateRequest;
 import org.example.restaurantmanagementapplication.model.in.OrderRequest;
 import org.example.restaurantmanagementapplication.repository.MenuItemRepository;
-import org.example.restaurantmanagementapplication.repository.OrderItemRepository;
 import org.example.restaurantmanagementapplication.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +21,8 @@ public class OrderService {
 
   private final OrderRepository orderRepository;
   private final MenuItemRepository menuItemRepository;
-  private final OrderItemRepository orderItemRepository;
 
-  public List<Order> findAll() {
+	public List<Order> findAll() {
     return orderRepository.findAll();
   }
 
@@ -72,6 +71,11 @@ public class OrderService {
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
 
+    if (!OrderStatusTransition.canBeUpdated(order.getStatus())) {
+        throw new IllegalArgumentException(
+                "Order in status " + order.getStatus().name() + " cannot be updated");
+    }
+
     var existingItems =
         order.getItems().stream().collect(Collectors.toMap(OrderItem::getMenuItem, item -> item));
 
@@ -101,7 +105,6 @@ public class OrderService {
 
     for (var remainingItem : existingItems.values()) {
       order.getItems().remove(remainingItem);
-      orderItemRepository.delete(remainingItem);
     }
 
     order.setUpdatedBy(currentUserName);
