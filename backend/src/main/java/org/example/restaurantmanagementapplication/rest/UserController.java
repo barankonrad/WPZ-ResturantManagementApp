@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
   private final UserService userService;
   private final RoleService roleService;
-  static final String ROLE_NOT_FOUND = "Could not find role ";
+  private static final String ROLE_NOT_FOUND = "Could not find role ";
 
   public UserController(UserService userService, RoleService roleService) {
     this.userService = userService;
