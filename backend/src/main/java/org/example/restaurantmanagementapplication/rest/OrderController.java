@@ -42,8 +42,8 @@ public class OrderController {
   @PostMapping
   public ResponseEntity<OrderDto> createOrder(@RequestBody List<OrderItemRequest> items) {
     if (items.isEmpty()) {
-        return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Order cannot be empty."))
-            .build();
+      return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Order cannot be empty."))
+              .build();
     }
     var orderRequest = new OrderRequest();
     orderRequest.setOrderedItems(items);
@@ -102,12 +102,12 @@ public class OrderController {
 
     try {
       order =
-          orderService.updateOrder(id, orderUpdateRequest.getOrderedItems(), getCurrentUserName());
+              orderService.updateOrder(id, orderUpdateRequest.getOrderedItems(), getCurrentUserName());
       return ResponseEntity.ok(mapper.toDTO(order));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.of(
-              ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage()))
-          .build();
+                      ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage()))
+              .build();
     }
   }
 
