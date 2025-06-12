@@ -36,7 +36,7 @@ class OrderItemMapperTest {
   @Test
   void toDTO_shouldMapAllFields_whenEntityIsNotNull() {
     var menuItem = new MenuItem();
-    var menuItemDto = new MenuItemDTO(1L, "name", "description", BigDecimal.valueOf(10.0), true);
+    var menuItemDto = new MenuItemDTO(1L, "name", "description", BigDecimal.valueOf(10.0), true, "url");
     var orderItem = new OrderItem();
     orderItem.setMenuItem(menuItem);
     orderItem.setQuantity(2);
@@ -59,7 +59,7 @@ class OrderItemMapperTest {
 
   @Test
   void toEntity_shouldMapAllFields_whenDtoIsNotNull() {
-    var menuItemDto = new MenuItemDTO(1L, "name", "description", BigDecimal.valueOf(10.0), true);
+    var menuItemDto = new MenuItemDTO(1L, "name", "description", BigDecimal.valueOf(10.0), true, "url");
     var menuItem = new MenuItem();
     var orderItemDto = new OrderItemDto(menuItemDto, 2, BigDecimal.valueOf(20.0));
 

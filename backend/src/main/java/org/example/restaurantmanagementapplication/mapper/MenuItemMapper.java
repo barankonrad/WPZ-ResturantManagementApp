@@ -17,7 +17,8 @@ public class MenuItemMapper implements GenericMapper<MenuItem, MenuItemDTO> {
         menuItem.getName(),
         menuItem.getDescription(),
         menuItem.getPrice(),
-        menuItem.isAvailable());
+        menuItem.isAvailable(),
+        menuItem.getImageUrl());
   }
 
   @Override
@@ -31,6 +32,7 @@ public class MenuItemMapper implements GenericMapper<MenuItem, MenuItemDTO> {
     menuItem.setDescription(menuItemDTO.getDescription());
     menuItem.setPrice(menuItemDTO.getPrice());
     menuItem.setAvailable(menuItemDTO.isAvailable());
+    menuItem.setImageUrl(menuItemDTO.getImageUrl());
     return menuItem;
   }
 }

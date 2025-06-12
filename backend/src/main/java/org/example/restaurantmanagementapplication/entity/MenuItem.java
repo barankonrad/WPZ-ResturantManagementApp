@@ -29,4 +29,7 @@ public class MenuItem {
 
   @Column(name = "is_available")
   private boolean isAvailable = true;
+
+  @Column(name = "image_url")
+  private String imageUrl;
 }
