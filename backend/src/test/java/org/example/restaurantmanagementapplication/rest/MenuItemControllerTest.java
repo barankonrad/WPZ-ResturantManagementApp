@@ -55,7 +55,8 @@ class MenuItemControllerTest {
         "Test Pizza",
         "A test pizza for E2E testing",
         new BigDecimal("12.99"),
-        true
+        true,
+        "imageUrl"
     );
 
     // When
@@ -72,6 +73,7 @@ class MenuItemControllerTest {
     assertEquals("Test Pizza", response.getBody().getName());
     assertEquals("A test pizza for E2E testing", response.getBody().getDescription());
     assertEquals(0, new BigDecimal("12.99").compareTo(response.getBody().getPrice()));
+    assertEquals("imageUrl", response.getBody().getImageUrl());
     assertTrue(response.getBody().isAvailable());
 
     createdMenuItemId = response.getBody().getId();
@@ -91,6 +93,7 @@ class MenuItemControllerTest {
     assertNotNull(response.getBody());
     assertEquals(createdMenuItemId, response.getBody().getId());
     assertEquals("Test Pizza", response.getBody().getName());
+    assertEquals("imageUrl", response.getBody().getImageUrl());
   }
 
   @Test
@@ -102,7 +105,8 @@ class MenuItemControllerTest {
         "Updated Test Pizza",
         "An updated test pizza",
         new BigDecimal("14.99"),
-        true
+        true,
+        "updatedImageUrl"
     );
 
     // When
@@ -121,6 +125,7 @@ class MenuItemControllerTest {
     assertEquals("Updated Test Pizza", response.getBody().getName());
     assertEquals("An updated test pizza", response.getBody().getDescription());
     assertEquals(0, new BigDecimal("14.99").compareTo(response.getBody().getPrice()));
+    assertEquals("updatedImageUrl", response.getBody().getImageUrl());
   }
 
   @Test
