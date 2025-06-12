@@ -1,9 +1,9 @@
 package org.example.restaurantmanagementapplication.rest;
 
+import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.restaurantmanagementapplication.common.SessionManager;
 import org.example.restaurantmanagementapplication.entity.User;
@@ -41,6 +41,10 @@ public class OrderController {
 
   @PostMapping
   public ResponseEntity<OrderDto> createOrder(@RequestBody List<OrderItemRequest> items) {
+    if (items.isEmpty()) {
+        return ResponseEntity.of(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Order cannot be empty."))
+            .build();
+    }
     var orderRequest = new OrderRequest();
     orderRequest.setOrderedItems(items);
     orderRequest.setCreatedBy(getCurrentUserName());
