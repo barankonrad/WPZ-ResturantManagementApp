@@ -57,27 +57,27 @@ public class SecurityConfig {
   @Profile("!test")
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authenticationProvider(authProvider())
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/", "/login", "/me").permitAll()
-            .requestMatchers("/admin").hasRole(ADMIN_ROLE)
-            .requestMatchers("/orders/*/confirm").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
-            .requestMatchers("/orders/*/start-preparation").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
-            .requestMatchers("/orders/*/mark-as-ready").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
-            .requestMatchers("/orders/*/cancel").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
-            .requestMatchers("/orders/*/update").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
-            .requestMatchers("/bill/*").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
-            .anyRequest().authenticated()
-        ).sessionManagement(session -> session
-            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-            .sessionConcurrency(concurrency -> concurrency.maximumSessions(1))
-        ).logout(logout -> logout
-            .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
-            .logoutSuccessUrl("/")
-            .invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID")
-        );
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/", "/login", "/me").permitAll()
+                    .requestMatchers("/admin").hasRole(ADMIN_ROLE)
+                    .requestMatchers("/orders/*/confirm").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
+                    .requestMatchers("/orders/*/start-preparation").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
+                    .requestMatchers("/orders/*/mark-as-ready").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
+                    .requestMatchers("/orders/*/cancel").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
+                    .requestMatchers("/orders/*/update").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
+                    .requestMatchers("/bill/*").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
+                    .anyRequest().authenticated()
+            ).sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                    .sessionConcurrency(concurrency -> concurrency.maximumSessions(1))
+            ).logout(logout -> logout
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
+                    .logoutSuccessUrl("/")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
+            );
 
     return http.build();
   }
@@ -87,10 +87,10 @@ public class SecurityConfig {
     CorsConfiguration configuration = new CorsConfiguration();
 
     configuration.setAllowedOriginPatterns(List.of(
-        "http://localhost:*",
-        "https://localhost:*",
-        "http://127.0.0.1:*",
-        "https://127.0.0.1:*"
+            "http://localhost:*",
+            "https://localhost:*",
+            "http://127.0.0.1:*",
+            "https://127.0.0.1:*"
     ));
 
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
@@ -98,10 +98,10 @@ public class SecurityConfig {
     configuration.setAllowedHeaders(List.of("*"));
 
     configuration.setExposedHeaders(List.of(
-        "Authorization",
-        "Cache-Control",
-        "Content-Type",
-        "Set-Cookie"
+            "Authorization",
+            "Cache-Control",
+            "Content-Type",
+            "Set-Cookie"
     ));
     configuration.setAllowCredentials(true);
     configuration.setMaxAge(3600L);

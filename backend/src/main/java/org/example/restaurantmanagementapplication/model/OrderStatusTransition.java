@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 public class OrderStatusTransition {
 
   private static final EnumMap<OrderStatus, Set<OrderStatus>> allowedTransitions =
-      new EnumMap<>(OrderStatus.class);
+          new EnumMap<>(OrderStatus.class);
 
   static {
     allowedTransitions.put(OrderStatus.NEW, EnumSet.of(OrderStatus.PENDING, OrderStatus.CANCELLED));
     allowedTransitions.put(
-        OrderStatus.PENDING, EnumSet.of(OrderStatus.CONFIRMED, OrderStatus.CANCELLED));
+            OrderStatus.PENDING, EnumSet.of(OrderStatus.CONFIRMED, OrderStatus.CANCELLED));
     allowedTransitions.put(OrderStatus.CONFIRMED, EnumSet.of(OrderStatus.IN_PROGRESS));
     allowedTransitions.put(OrderStatus.IN_PROGRESS, EnumSet.of(OrderStatus.READY));
     allowedTransitions.put(OrderStatus.READY, EnumSet.of(OrderStatus.COMPLETED));
