@@ -66,6 +66,7 @@ public class SecurityConfig {
             .requestMatchers("/orders/*/start-preparation").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
             .requestMatchers("/orders/*/mark-as-ready").hasAnyRole(ADMIN_ROLE, CHEF_ROLE)
             .requestMatchers("/orders/*/cancel").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
+            .requestMatchers("/bill/*").hasAnyRole(ADMIN_ROLE, WAITER_ROLE)
             .anyRequest().authenticated()
         ).sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
