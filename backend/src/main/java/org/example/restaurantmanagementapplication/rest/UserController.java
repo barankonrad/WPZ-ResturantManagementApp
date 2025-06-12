@@ -15,12 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class UserRestController {
+public class UserController {
   private final UserService userService;
   private final RoleService roleService;
-  static final String ROLE_NOT_FOUND= "Could not find role ";
+  private static final String ROLE_NOT_FOUND = "Could not find role ";
 
-  public UserRestController(UserService userService, RoleService roleService) {
+  public UserController(UserService userService, RoleService roleService) {
     this.userService = userService;
     this.roleService = roleService;
   }
