@@ -1,7 +1,7 @@
 <script lang="ts">
+  import type { MenuItem } from "$lib/api/menu";
   import { Input } from "$lib/components/ui/input";
   import * as Tooltip from "$lib/components/ui/tooltip";
-  import type { MenuItem } from "$lib/types/menu";
 
   interface Props {
     id: MenuItem["id"];

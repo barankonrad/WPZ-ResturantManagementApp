@@ -6,7 +6,8 @@ export const MenuItemSchema = v.strictObject({
   name: v.string(),
   description: v.nullable(v.string()),
   price: v.number(),
-  available: v.optional(v.boolean())
+  available: v.optional(v.boolean()),
+  imageUrl: v.optional(v.string())
 });
 
 export type MenuItem = v.InferOutput<typeof MenuItemSchema>;

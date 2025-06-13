@@ -6,7 +6,7 @@
   import { AspectRatio } from "$lib/components/ui/aspect-ratio";
   import { Upload } from "@lucide/svelte";
   import { createMenuItem } from "$lib/api/admin";
-    import { invalidate, invalidateAll } from "$app/navigation";
+  import { invalidate, invalidateAll } from "$app/navigation";
 
   interface Props {
     open: boolean;
@@ -24,15 +24,41 @@
     return "";
   });
 
+  // Helper function to convert file to base64 string
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleAdd = async () => {
-    const response = await createMenuItem({
+    let imageString = "";
+
+    // Convert image file to base64 string
+    if (files && files.length > 0) {
+      try {
+        imageString = await fileToBase64(files[0] as File);
+      } catch (error) {
+        console.error("Error converting image to string:", error);
+        return;
+      }
+    }
+
+    const data = {
       name,
       description: null,
       price,
-      available: true
-    });
+      available: true,
+      imageUrl: imageString
+    };
 
-    invalidateAll()
+    console.log(data);
+    const response = await createMenuItem(data);
+
+    invalidateAll();
 
     if (!response.ok) throw response.status;
 

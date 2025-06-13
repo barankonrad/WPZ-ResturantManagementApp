@@ -7,7 +7,7 @@ import MenuTableNameActions from "./_components/menu-table-name-actions.svelte";
 import MenuTablePriceActions from "./_components/menu-table-price-actions.svelte";
 import MenuTableImageActions from "./_components/menu-table-image-actions.svelte";
 import { Checkbox } from "$lib/components/ui/checkbox";
-import type { MenuItem } from "$lib/types/menu";
+import type { MenuItem } from "$lib/api/menu";
 
 export const columns: ColumnDef<MenuItem>[] = [
   {

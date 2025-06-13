@@ -3,9 +3,9 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { CircleMinus, Clipboard } from "@lucide/svelte";
-  import type { MenuItem } from "$lib/types/menu";
   import { deleteMenuItem } from "$lib/api/admin";
-  import { invalidate, invalidateAll } from "$app/navigation";
+  import { invalidateAll } from "$app/navigation";
+  import type { MenuItem } from "$lib/api/menu";
 
   interface Props {
     id: MenuItem["id"];

@@ -16,7 +16,7 @@
   import { Input } from "$lib/components/ui/input";
   import { CirclePlus } from "@lucide/svelte";
   import MenuAddDialog from "./menu-add-dialog.svelte";
-  import type { MenuItem } from "$lib/types/menu";
+    import type { MenuItem } from "$lib/api/menu";
 
   type DataTableProps<MenuItem, TValue> = {
     columns: ColumnDef<MenuItem, TValue>[];
