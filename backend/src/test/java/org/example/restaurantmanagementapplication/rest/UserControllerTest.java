@@ -8,6 +8,7 @@ import java.util.List;
 import org.example.restaurantmanagementapplication.entity.User;
 import org.example.restaurantmanagementapplication.model.in.RegisterRequest;
 import org.example.restaurantmanagementapplication.model.out.UserOut;
+import org.example.restaurantmanagementapplication.service.RoleService;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -32,13 +33,14 @@ class UserControllerTest {
   private static final String TEST_EMAIL = "test.e2e@example.com";
   private static final String TEST_PASSWORD = "password123";
   private static final String TEST_ROLE = "USER";
-  private static final String RESULT_TEST_ROLE = "ROLE_USER";
+	@Autowired
+  private RoleService roleService;
 
   @Test
   @Order(1)
   void testRetrieveAllUsers() {
     // When
-    ResponseEntity<List<User>> response = restTemplate.exchange(
+    ResponseEntity<List<UserOut>> response = restTemplate.exchange(
         "/users",
         HttpMethod.GET,
         null,
@@ -82,9 +84,9 @@ class UserControllerTest {
   @Order(3)
   void testRetrieveUser() {
     // When
-    ResponseEntity<User> response = restTemplate.getForEntity(
+    ResponseEntity<UserOut> response = restTemplate.getForEntity(
         "/users/" + createdUserId,
-        User.class
+        UserOut.class
     );
 
     // Then
@@ -93,18 +95,22 @@ class UserControllerTest {
     assertEquals(createdUserId, response.getBody().getId());
     assertEquals(TEST_EMAIL, response.getBody().getEmail());
     assertNotNull(response.getBody().getRole());
-    assertEquals(RESULT_TEST_ROLE, response.getBody().getRole().getName());
+    assertEquals(TEST_ROLE, response.getBody().getRole());
   }
 
   @Test
   @Order(4)
   void testUpdateUser() {
     // Given
-    ResponseEntity<User> getResponse = restTemplate.getForEntity(
+    ResponseEntity<UserOut> getResponse = restTemplate.getForEntity(
         "/users/" + createdUserId,
-        User.class
+        UserOut.class
     );
-    User existingUser = getResponse.getBody();
+    UserOut userOut = getResponse.getBody();
+    if (userOut == null) {
+      throw new IllegalStateException("User not found for ID: " + createdUserId);
+    }
+    User existingUser = new User(createdUserId, userOut.getEmail(), TEST_PASSWORD, roleService.findByName(userOut.getRole()));
 
     User updatedUser = new User();
     updatedUser.setId(createdUserId);
@@ -114,11 +120,11 @@ class UserControllerTest {
 
     // When
     HttpEntity<User> requestEntity = new HttpEntity<>(updatedUser);
-    ResponseEntity<User> response = restTemplate.exchange(
+    ResponseEntity<UserOut> response = restTemplate.exchange(
         "/users",
         HttpMethod.PUT,
         requestEntity,
-        User.class
+        UserOut.class
     );
 
     // Then
@@ -127,7 +133,7 @@ class UserControllerTest {
     assertEquals(createdUserId, response.getBody().getId());
     assertEquals("updated." + TEST_EMAIL, response.getBody().getEmail());
     assertNotNull(response.getBody().getRole());
-    assertEquals(RESULT_TEST_ROLE, response.getBody().getRole().getName());
+    assertEquals(TEST_ROLE, response.getBody().getRole());
   }
 
   @Test
@@ -139,11 +145,11 @@ class UserControllerTest {
 
     // When
     HttpEntity<User> requestEntity = new HttpEntity<>(partialUser);
-    ResponseEntity<User> response = restTemplate.exchange(
+    ResponseEntity<UserOut> response = restTemplate.exchange(
         "/users/" + createdUserId,
         HttpMethod.PATCH,
         requestEntity,
-        User.class
+        UserOut.class
     );
 
     // Then
@@ -152,7 +158,7 @@ class UserControllerTest {
     assertEquals(createdUserId, response.getBody().getId());
     assertEquals("patched." + TEST_EMAIL, response.getBody().getEmail());
     assertNotNull(response.getBody().getRole());
-    assertEquals(RESULT_TEST_ROLE, response.getBody().getRole().getName());
+    assertEquals(TEST_ROLE, response.getBody().getRole());
   }
 
   @Test

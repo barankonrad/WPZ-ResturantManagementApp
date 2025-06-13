@@ -26,15 +26,15 @@ public class UserController {
   }
 
   @GetMapping("/users")
-  public ResponseEntity<List<User>> retrieveAllUsers() {
-    return ResponseEntity.ok(userService.findAll());
+  public ResponseEntity<List<UserOut>> retrieveAllUsers() {
+    return ResponseEntity.ok(userService.findAll().stream().map(UserOut::fromEntity).toList());
   }
 
   @GetMapping("/users/{id}")
-  public ResponseEntity<User> retrieveUser(@PathVariable int id) {
+  public ResponseEntity<UserOut> retrieveUser(@PathVariable int id) {
     User user = userService.findById(id);
     if (user != null) {
-      return ResponseEntity.ok(user);
+      return ResponseEntity.ok(UserOut.fromEntity(user));
     } else {
       return ResponseEntity.notFound().build();
     }
@@ -78,7 +78,7 @@ public class UserController {
     }
 
     user = userService.save(user);
-    return ResponseEntity.ok(user);
+    return ResponseEntity.ok(UserOut.fromEntity(user));
   }
 
   @PatchMapping("/users/{id}")
@@ -100,7 +100,7 @@ public class UserController {
 
     user.setId(id);
     user = userService.save(user);
-    return ResponseEntity.ok(user);
+    return ResponseEntity.ok(UserOut.fromEntity(user));
   }
 
   @DeleteMapping("/users/{id}")
