@@ -2,12 +2,12 @@ import { baseURL, handleGETRequest, IDSchema } from ".";
 import * as v from "valibot";
 
 export const MenuItemSchema = v.strictObject({
-  id: v.optional(IDSchema),
+  id: v.nullish(IDSchema),
   name: v.string(),
   description: v.nullable(v.string()),
   price: v.number(),
-  available: v.optional(v.boolean()),
-  imageUrl: v.optional(v.string())
+  available: v.nullish(v.boolean()),
+  imageUrl: v.nullish(v.string())
 });
 
 export type MenuItem = v.InferOutput<typeof MenuItemSchema>;

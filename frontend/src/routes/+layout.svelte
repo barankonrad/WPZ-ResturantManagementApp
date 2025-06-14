@@ -16,6 +16,10 @@
 
 <ModeWatcher />
 
+<svelte:head>
+  <title>Restaurant Management</title>
+</svelte:head>
+
 <div class="flex h-full min-h-screen flex-col">
   {#if data.user}
     <header class="bg-gray-100 shadow-md dark:bg-gray-900">

@@ -1,4 +1,4 @@
-import { UserSchema } from "$lib/types/user";
+import { UserSchema, type User } from "$lib/types/user";
 import { baseURL } from ".";
 import * as v from "valibot";
 import { MenuItemSchema, type MenuItem } from "./menu";
@@ -57,3 +57,14 @@ export const updateMenuItem = (data: MenuItem) =>
 
 export const deleteMenuItem = (id: number) =>
   fetch(`${baseURL}/menu-items/${id}`, { method: "delete", credentials: "include" });
+
+
+export const createUser = (data: User) =>
+  fetch(`${baseURL}/users`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });

@@ -11,8 +11,6 @@
 
   let { data }: PageProps = $props();
 
-  console.log(data);
-
   let users = $derived(data.users);
   let menuItems = $derived(data.menu);
 
@@ -26,12 +24,11 @@
 
       <Tabs.List>
         <Tabs.Trigger value="users">Users</Tabs.Trigger>
-        <Tabs.Trigger value="orders">Orders</Tabs.Trigger>
         <Tabs.Trigger value="menu">Menu</Tabs.Trigger>
       </Tabs.List>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <Card.Root class="w-full">
         <Card.Header>
           <div class="flex items-center justify-between">
@@ -39,17 +36,6 @@
             <Users class="h-6 w-6" />
           </div>
           <Card.Title>{users.length}</Card.Title>
-        </Card.Header>
-        <Card.Footer></Card.Footer>
-      </Card.Root>
-
-      <Card.Root class="w-full">
-        <Card.Header>
-          <div class="flex items-center justify-between">
-            <Card.Description>Total Orders</Card.Description>
-            <ShoppingCart class="h-6 w-6" />
-          </div>
-          <Card.Title>{orders.length}</Card.Title>
         </Card.Header>
         <Card.Footer></Card.Footer>
       </Card.Root>
@@ -74,21 +60,6 @@
         </Card.Header>
         <Card.Content>
           <UserTable data={users} columns={userColumns} />
-        </Card.Content>
-      </Card.Root>
-    </Tabs.Content>
-
-    <Tabs.Content value="orders">
-      <Card.Root class="h-full w-full">
-        <Card.Header>
-          <Card.Title>Manage orders</Card.Title>
-          <Card.Description>See and manage orders</Card.Description>
-        </Card.Header>
-        <Card.Content>
-          <!-- TODO: Impement orders data table -->
-          <p class="text-sm text-muted-foreground">
-            This feature is not implemented yet. Please check back later.
-          </p>
         </Card.Content>
       </Card.Root>
     </Tabs.Content>

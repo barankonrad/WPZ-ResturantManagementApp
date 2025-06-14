@@ -19,14 +19,7 @@
   const getCart: () => CartState = getContext("cart");
   const cart = $derived(getCart());
 
-  let menuItems: MenuItem[] = $derived(
-    menu
-      .map((x) => ({ ...x, imageUrl: "https://picsum.photos/64x64" }))
-      .map((x) => {
-        delete (x as any).description;
-        return x;
-      })
-  );
+  let menuItems: MenuItem[] = $derived(menu);
 
   const minPrice = $derived(Math.min(...menuItems.map((item) => item.price)));
   const maxPrice = $derived(Math.max(...menuItems.map((item) => item.price)));
@@ -74,6 +67,30 @@
 
   const count = $derived(filterMenuItems().length);
   const perPage = $state(8);
+
+  const base64ToImageUrl = (base64String: string): string => {
+    // Check if it's already a data URL or regular URL
+    if (base64String.startsWith("data:") || base64String.startsWith("http")) {
+      return base64String;
+    }
+
+    // If it's just base64 without prefix, add the data URL prefix
+    return `data:image/jpeg;base64,${base64String}`;
+  };
+
+  const isValidBase64 = (str: string): boolean => {
+    try {
+      // Check if it's already a data URL or regular URL
+      if (str.startsWith("data:") || str.startsWith("http")) {
+        return true;
+      }
+      // Try to decode base64
+      atob(str);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 </script>
 
 <Tooltip.Provider>
@@ -107,11 +124,19 @@
               <Card.Content>
                 <div class="flex w-full flex-col">
                   <AspectRatio ratio={1 / 1} class="rounded-md bg-muted">
-                    <img
-                      src="https://picsum.photos/256/256?{item.name}"
-                      alt="Menu Item"
-                      class="absolute h-full w-full rounded-md object-cover"
-                    />
+                    {#if item.imageUrl && isValidBase64(item.imageUrl)}
+                      <img
+                        src={base64ToImageUrl(item.imageUrl)}
+                        alt="Menu Item"
+                        class="absolute h-full w-full rounded-md object-cover"
+                      />
+                    {:else}
+                      <img
+                        src="https://picsum.photos/256?{item.name}"
+                        alt="Menu Item"
+                        class="absolute h-full w-full rounded-md object-cover"
+                      />
+                    {/if}
                   </AspectRatio>
                 </div>
               </Card.Content>
